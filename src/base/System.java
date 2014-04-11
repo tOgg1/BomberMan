@@ -6,4 +6,5 @@ package base;
 public abstract class System {
 
     public abstract void update(float dt);
+    public abstract void removeEntity(int id);
 }

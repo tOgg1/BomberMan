@@ -3,6 +3,7 @@ package systems;
 import base.Entity;
 import components.Renderable;
 import components.ScreenPosition;
+import nodes.RenderNode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,16 +19,25 @@ import java.util.Map;
  */
 public class RenderSystem extends base.System{
 
-    private Map<Integer, Renderable> renderables = new HashMap<>();
-    private Map<Integer, ScreenPosition> positions = new HashMap<>();
+    private Map<Integer, RenderNode> nodes = new HashMap<>();
     private Map<Integer, Image> resources = new HashMap<>();
 
     private JFrame frame;
     private JPanel gamePanel;
 
-    public static int SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
+    public static int SCREEN_WIDTH = 768, SCREEN_HEIGHT = 768;
 
-    public RenderSystem() {
+    private final int sizex, sizey;
+
+    private int unitResource;
+    private int bombResource;
+    private int crateResource;
+
+    public RenderSystem(int sizex, int sizey) {
+
+        this.sizex = sizex;
+        this.sizey = sizey;
+
         gamePanel = new JPanel(){
             @Override
             public void paint(Graphics g) {
@@ -35,16 +45,21 @@ public class RenderSystem extends base.System{
                 g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
                 System.out.println("Hello");
-                for(Map.Entry<Integer, Renderable> integerRenderableEntry : renderables.entrySet()){
-                    Integer entity_id = integerRenderableEntry.getKey();
-                    Renderable renderable = integerRenderableEntry.getValue();
-                    ScreenPosition pos = positions.get(entity_id);
+                System.out.println(nodes.size());
+                for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
+                    RenderNode node = entry.getValue();
+                    Integer entity_id = entry.getKey();
+                    Renderable renderable = node.renderable;
+                    ScreenPosition pos = node.pos;
 
                     if(pos == null){
                         throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
                     }
 
-                    g.drawImage(resources.get(renderable.resourceId), pos.x, pos.y, 128, 128, null);
+                    System.out.println("lol");
+                    System.out.println(resources.get(renderable.resourceId));
+                    g.drawImage(resources.get(renderable.resourceId), pos.x, pos.y, renderable.sizex,
+                            renderable.sizey, null);
                 }
             }
         };
@@ -55,6 +70,11 @@ public class RenderSystem extends base.System{
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.setResizable(false);
+
+        /* Load assetse */
+        unitResource = loadResource("res/unit.png");
+        bombResource = loadResource("res/bomb.png");
+        crateResource = loadResource("res/create.png");
     }
 
     /* Render */
@@ -64,12 +84,14 @@ public class RenderSystem extends base.System{
     }
 
     public void addToRender(int entity_id, Renderable renderable, ScreenPosition position){
-        if(renderables.containsKey(entity_id)){
+        if(nodes.containsKey(entity_id)){
             return;
         }
 
-        renderables.put(entity_id, renderable);
-        positions.put(entity_id, position);
+        RenderNode node = new RenderNode();
+        node.renderable = renderable;
+        node.pos = position;
+        nodes.put(entity_id, node);
     }
 
     public int loadResource(String pathToImage){
@@ -84,8 +106,13 @@ public class RenderSystem extends base.System{
         }
     }
 
+    @Override
+    public void removeEntity(int id) {
+        nodes.remove(id);
+    }
+
     public static void main(String[] args){
-        RenderSystem system = new RenderSystem();
+        RenderSystem system = new RenderSystem(16, 16);
         int someEntity = Entity.createNewEntity();
         int picture = system.loadResource("res/bomb.png");
 
@@ -95,6 +122,8 @@ public class RenderSystem extends base.System{
 
         Renderable renderable = new Renderable();
         renderable.resourceId = picture;
+        renderable.sizex = 64;
+        renderable.sizey = 64;
 
         system.addToRender(someEntity, renderable, pos);
         system.update(200);
@@ -104,5 +133,21 @@ public class RenderSystem extends base.System{
             e.printStackTrace();
         }
         system.update(300);
+    }
+
+    public int getCrateResource() {
+        return crateResource;
+    }
+
+    public int getUnitResource() {
+        return unitResource;
+    }
+
+    public int getBombResource() {
+        return bombResource;
+    }
+
+    public int getUnitSize(){
+        return SCREEN_HEIGHT/sizex;
     }
 }

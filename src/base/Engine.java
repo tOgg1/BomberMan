@@ -8,7 +8,13 @@ import java.util.ArrayList;
 public class Engine implements Runnable {
     private ArrayList<System> systems = new ArrayList<System>();
 
-    private long frameTime;
+    private long frameTime = 1000/24;
+
+    public Factory factory;
+
+    public Engine() {
+        Factory.getInstance();
+    }
 
     public void run(){
         long now = 0, prev = 0, dt = 0;
@@ -21,9 +27,8 @@ public class Engine implements Runnable {
                 system.update(dt);
             }
 
-            while((now = java.lang.System.currentTimeMillis()) - prev < frameTime){
-
-            }
+            // Fill remaining time
+            while((now = java.lang.System.currentTimeMillis()) - prev < frameTime){}
 
             dt = now - prev;
         }
@@ -35,5 +40,9 @@ public class Engine implements Runnable {
 
     public void addSystem(System system){
         systems.add(system);
+    }
+
+    public void removeEntity(int id){
+
     }
 }
