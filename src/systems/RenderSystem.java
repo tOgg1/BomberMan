@@ -8,6 +8,7 @@ import nodes.RenderNode;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +45,6 @@ public class RenderSystem extends base.System{
                 g.setColor(Color.DARK_GRAY);
                 g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-                System.out.println("Hello");
-                System.out.println(nodes.size());
                 for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
                     RenderNode node = entry.getValue();
                     Integer entity_id = entry.getKey();
@@ -56,8 +55,6 @@ public class RenderSystem extends base.System{
                         throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
                     }
 
-                    System.out.println("lol");
-                    System.out.println(resources.get(renderable.resourceId));
                     g.drawImage(resources.get(renderable.resourceId), pos.x, pos.y, renderable.sizex,
                             renderable.sizey, null);
                 }
@@ -68,13 +65,15 @@ public class RenderSystem extends base.System{
         frame.pack();
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setFocusable(true);
+        frame.requestFocus();
         frame.setVisible(true);
         frame.setResizable(false);
 
         /* Load assetse */
         unitResource = loadResource("res/unit.png");
         bombResource = loadResource("res/bomb.png");
-        crateResource = loadResource("res/create.png");
+        crateResource = loadResource("res/crate.png");
     }
 
     /* Render */
@@ -102,6 +101,7 @@ public class RenderSystem extends base.System{
             resources.put(resources.size(), image);
             return resources.size()-1;
         } catch (IOException e) {
+            e.printStackTrace();
             return -1;
         }
     }
@@ -149,5 +149,9 @@ public class RenderSystem extends base.System{
 
     public int getUnitSize(){
         return SCREEN_HEIGHT/sizex;
+    }
+
+    public void addKeyListener(KeyListener listener){
+        frame.addKeyListener(listener);
     }
 }

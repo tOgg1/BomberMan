@@ -9,8 +9,13 @@ public class MovementNode {
     public Collideable collideable;
     public Teleporter teleporter;
     public Moveable moveable;
-    public CellPosition pos;
-    public ScreenPosition screenPos;
+    public final CellPosition pos;
+    public final ScreenPosition screenPos;
+
+    public MovementNode(CellPosition pos, ScreenPosition screenPos) {
+        this.pos = pos;
+        this.screenPos = screenPos;
+    }
 
     public boolean isCollideable(){
         return collideable != null;

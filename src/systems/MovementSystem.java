@@ -45,34 +45,37 @@ public class MovementSystem extends base.System {
             if(moveable.move){
                 switch(moveable.curDir){
                     case UP:
-                        ++screenPosition.y;
-                        if(screenPosition.y/sizey >= position.y){
-                            if(!moveMoveableInGrid(node, position.x, position.y+1)){
-                                --screenPosition.y;
+                        screenPosition.y -= 2;
+                        if(screenPosition.y/sizey < position.y){
+                            if(!moveMoveableInGrid(node, position.x, position.y-1)){
+                                screenPosition.y += 2;
                             }
                         }
                         break;
                     case DOWN:
-                        --screenPosition.y;
-                        if(screenPosition.y/sizey <= position.y){
-                            if(!moveMoveableInGrid(node, position.x, position.y-1)){
-                                ++screenPosition.y;
+                        screenPosition.y += 2 ;
+                        if(screenPosition.y/sizey > position.y){
+                            if(!moveMoveableInGrid(node, position.x, position.y+1)){
+                                screenPosition.y -= 2;
                             }
                         }
                         break;
                     case LEFT:
-                        --screenPosition.x;
-                        if(screenPosition.x/sizex <= position.x){
+                        screenPosition.x -= 2;
+                        if(screenPosition.x/sizex < position.x){
                             if(!moveMoveableInGrid(node, position.x-1, position.y)){
-                                --screenPosition.x;
+                                screenPosition.x += 2;
                             }
                         }
                         break;
                     case RIGHT:
-                        ++screenPosition.x;
-                        if(screenPosition.x/sizex >= position.x){
+                        screenPosition.x += 2;
+                        System.out.println("ScreenPosition: " + screenPosition);
+                        System.out.println("Screen/size: " + screenPosition.x/sizex);
+                        System.out.println("CellPos: " + position.x);
+                        if(screenPosition.x/sizex > position.x){
                             if(!moveMoveableInGrid(node, position.x+1, position.y)){
-                                ++screenPosition.y;
+                                screenPosition.x -= 2;
                             }
                         }
                         break;
@@ -86,6 +89,10 @@ public class MovementSystem extends base.System {
     public boolean moveMoveableInGrid(MovementNode node, int newX, int newY){
         for (Map.Entry<Integer, MovementNode> entry : nodes.entrySet()) {
             MovementNode _node = entry.getValue();
+
+            System.out.println("lol2");
+            if(node == _node)
+                continue;
 
             if(!(_node.pos.x == newX && _node.pos.y == newY)){
                 continue;

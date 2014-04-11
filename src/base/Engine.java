@@ -12,8 +12,19 @@ public class Engine implements Runnable {
 
     public Factory factory;
 
-    public Engine() {
+    private static Engine singleton;
+
+
+    private Engine() {
         Factory.getInstance();
+    }
+
+    public static Engine getInstance(){
+        if(singleton == null){
+            singleton = new Engine();
+        }
+
+        return singleton;
     }
 
     public void run(){

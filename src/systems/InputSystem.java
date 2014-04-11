@@ -1,6 +1,8 @@
 package systems;
 
+import base.Engine;
 import components.Moveable;
+import nodes.InputNode;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -12,17 +14,51 @@ import java.util.Map;
  */
 public class InputSystem extends base.System implements KeyListener {
 
-    private Map<Integer, Moveable> moveables = new HashMap<>();
+    private Map<Integer, InputNode> inputtables = new HashMap<>();
+
+    private boolean[] keyMap = new boolean[0xFFF];
 
     @Override
     public void removeEntity(int id) {
-        moveables.remove(id);
+        inputtables.remove(id);
     }
 
-    // Do nothing
+    public void addToInput(int entity_id, InputNode node){
+        inputtables.put(entity_id, node);
+    }
+
+    // Do nothing as of now
     @Override
     public void update(float dt) {
-        return;
+
+        // A bomb shalt be layeth upon thou
+        if(keyMap[KeyEvent.VK_SPACE]) {
+            Engine engine = Engine.getInstance();
+            for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
+                if (entry.getValue().isBombLayer()) {
+                    engine.factory.createBomb(entry.getValue().cellPosition.x, entry.getValue().cellPosition.y,
+                            entry.getValue().bombLayer.damage, entry.getValue().bombLayer.spread, 40);
+                }
+            }
+        }
+
+        Moveable.Direction d;
+        if(keyMap[KeyEvent.VK_LEFT]) {
+            d = Moveable.Direction.LEFT;
+        } else if(keyMap[KeyEvent.VK_RIGHT]) {
+            d = Moveable.Direction.RIGHT;
+        } else if(keyMap[KeyEvent.VK_UP]) {
+            d = Moveable.Direction.UP;
+        } else if(keyMap[KeyEvent.VK_DOWN]) {
+            d = Moveable.Direction.DOWN;
+        }else{
+            return;
+        }
+
+        for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
+            entry.getValue().moveable.curDir = d;
+            entry.getValue().moveable.move = true;
+        }
     }
 
     @Override
@@ -30,35 +66,12 @@ public class InputSystem extends base.System implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-        Moveable.Direction d;
-        switch (keyEvent.getKeyCode()){
-            case KeyEvent.VK_LEFT:
-                d = Moveable.Direction.LEFT;
-                break;
-            case KeyEvent.VK_RIGHT:
-                d = Moveable.Direction.RIGHT;
-                break;
-            case KeyEvent.VK_UP:
-                d = Moveable.Direction.UP;
-                break;
-            case KeyEvent.VK_DOWN:
-                d = Moveable.Direction.DOWN;
-                break;
-            default:
-                return;
+        keyMap[keyEvent.getKeyCode()] = true;
 
-        }
-
-        for (Map.Entry<Integer, Moveable> entry : moveables.entrySet()) {
-            entry.getValue().curDir = d;
-            entry.getValue().move = true;
-        }
     }
 
     @Override
     public void keyReleased(KeyEvent keyEvent) {
-        for (Map.Entry<Integer, Moveable> entry : moveables.entrySet()) {
-            entry.getValue().move = true;
-        }
+        keyMap[keyEvent.getKeyCode()] = false;
     }
 }

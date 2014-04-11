@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class SchedulerSystem extends base.System{
 
-    private HashMap<Integer, TimedEffect> timeables;
+    private HashMap<Integer, TimedEffect> timeables = new HashMap<>();
     private final Engine engineRef;
 
     public SchedulerSystem(Engine engineRef) {

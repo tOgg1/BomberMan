@@ -8,7 +8,7 @@ import systems.*;
 public class Main {
 
     public static void main(String[] args){
-        Engine engine = new Engine();
+        Engine engine = Engine.getInstance();
 
         int gridSize = 16;
 
@@ -20,13 +20,21 @@ public class Main {
         AISystem aiSystem = new AISystem();
         SchedulerSystem schedulerSystem = new SchedulerSystem(engine);
 
+        renderSystem.addKeyListener(inputSystem);
+
         Factory factory = Factory.instantiate(renderSystem, movementSystem, inputSystem, combatSystem, aiSystem);
         factory.createPlayer(1,1);
         factory.createCrate(2,2);
         factory.createCrate(3,2);
 
+        engine.factory = factory;
+
         engine.addSystem(renderSystem);
         engine.addSystem(movementSystem);
+        engine.addSystem(combatSystem);
+        engine.addSystem(inputSystem);
+        engine.addSystem(aiSystem);
+        engine.addSystem(schedulerSystem);
 
         engine.run();
 
