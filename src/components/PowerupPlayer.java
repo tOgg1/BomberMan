@@ -7,7 +7,6 @@ import base.Component;
  */
 public class PowerupPlayer extends Component {
 
-
     enum Feature {
         FLAME_LENGTH,
         BOMB_AMOUNT,

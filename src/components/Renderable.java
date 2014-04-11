@@ -5,5 +5,5 @@ package components;
  */
 public class Renderable {
 
-    int resourceId;
+    public int resourceId;
 }
