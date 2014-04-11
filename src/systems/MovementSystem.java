@@ -16,11 +16,13 @@ public class MovementSystem extends base.System {
 
     private Map<Integer, MovementNode> nodes = new HashMap<Integer, MovementNode>();
 
-    private int sizex, sizey;
+    private int sizex, sizey, tileSizeX, tileSizeY;
 
-    public MovementSystem(int sizex, int sizey) {
+    public MovementSystem(int sizex, int sizey, int tileX, int tileY) {
         this.sizex = sizex;
         this.sizey = sizey;
+        this.tileSizeX = tileX;
+        this.tileSizeY = tileY;
     }
 
     @Override
@@ -45,37 +47,34 @@ public class MovementSystem extends base.System {
             if(moveable.move){
                 switch(moveable.curDir){
                     case UP:
-                        screenPosition.y -= 2;
-                        if(screenPosition.y/sizey < position.y){
+                        screenPosition.y -= moveable.speed;
+                        if(screenPosition.y/tileSizeY < position.y){
                             if(!moveMoveableInGrid(node, position.x, position.y-1)){
-                                screenPosition.y += 2;
+                                screenPosition.y += moveable.speed;
                             }
                         }
                         break;
                     case DOWN:
-                        screenPosition.y += 2 ;
-                        if(screenPosition.y/sizey > position.y){
+                        screenPosition.y += moveable.speed ;
+                        if(screenPosition.y/tileSizeY > position.y){
                             if(!moveMoveableInGrid(node, position.x, position.y+1)){
-                                screenPosition.y -= 2;
+                                screenPosition.y -= moveable.speed;
                             }
                         }
                         break;
                     case LEFT:
-                        screenPosition.x -= 2;
-                        if(screenPosition.x/sizex < position.x){
+                        screenPosition.x -= moveable.speed;
+                        if(screenPosition.x/tileSizeX < position.x){
                             if(!moveMoveableInGrid(node, position.x-1, position.y)){
-                                screenPosition.x += 2;
+                                screenPosition.x += moveable.speed;
                             }
                         }
                         break;
                     case RIGHT:
-                        screenPosition.x += 2;
-                        System.out.println("ScreenPosition: " + screenPosition);
-                        System.out.println("Screen/size: " + screenPosition.x/sizex);
-                        System.out.println("CellPos: " + position.x);
-                        if(screenPosition.x/sizex > position.x){
+                        screenPosition.x += moveable.speed;
+                        if(screenPosition.x/tileSizeX > position.x){
                             if(!moveMoveableInGrid(node, position.x+1, position.y)){
-                                screenPosition.x -= 2;
+                                screenPosition.x -= moveable.speed;
                             }
                         }
                         break;
@@ -90,7 +89,6 @@ public class MovementSystem extends base.System {
         for (Map.Entry<Integer, MovementNode> entry : nodes.entrySet()) {
             MovementNode _node = entry.getValue();
 
-            System.out.println("lol2");
             if(node == _node)
                 continue;
 
@@ -106,8 +104,8 @@ public class MovementSystem extends base.System {
                 Teleporter tele = _node.teleporter;
                 node.pos.x = tele.toX;
                 node.pos.y = tele.toY;
-                node.screenPos.x = node.pos.x/sizex;
-                node.screenPos.y = node.pos.y/sizey;
+                node.screenPos.x = node.pos.x*tileSizeX;
+                node.screenPos.y = node.pos.y*tileSizeY;
                 return true;
             }
         }

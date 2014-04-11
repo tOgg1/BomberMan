@@ -9,6 +9,7 @@ public class Moveable extends Component {
 
     public boolean move = false;
     public Direction curDir = Direction.UP;
+    public int speed = 2;
 
     public enum Direction{
         UP,

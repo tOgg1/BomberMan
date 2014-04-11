@@ -2,6 +2,7 @@ package nodes;
 
 import components.Renderable;
 import components.ScreenPosition;
+import components.Size;
 import components.TimedEffect;
 
 /**
@@ -10,6 +11,7 @@ import components.TimedEffect;
 public class RenderNode {
 
     public Renderable renderable;
+    public Size size;
     public ScreenPosition pos;
     public TimedEffect effect;
 }

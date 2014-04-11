@@ -13,7 +13,9 @@ public class Main {
         int gridSize = 16;
 
         RenderSystem renderSystem = new RenderSystem(gridSize, gridSize);
-        MovementSystem movementSystem = new MovementSystem(gridSize, gridSize);
+        MovementSystem movementSystem = new MovementSystem(gridSize, gridSize,
+                       renderSystem.getUnitSize(), renderSystem.getUnitSize());
+
         CombatSystem combatSystem = new CombatSystem();
         PowerupSystem powerupSystem = new PowerupSystem();
         InputSystem inputSystem = new InputSystem();
@@ -27,6 +29,8 @@ public class Main {
         factory.createCrate(2,2);
         factory.createCrate(3,2);
 
+        factory.createTeleporter(5,4, 10, 11);
+
         engine.factory = factory;
 
         engine.addSystem(renderSystem);
@@ -39,4 +43,5 @@ public class Main {
         engine.run();
 
     }
+
 }

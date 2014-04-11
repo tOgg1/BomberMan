@@ -3,6 +3,7 @@ package base;
 import components.*;
 import nodes.InputNode;
 import nodes.MovementNode;
+import nodes.RenderNode;
 import systems.*;
 
 /**
@@ -45,22 +46,28 @@ public class Factory {
         CellPosition cellPosition = new CellPosition();
         ScreenPosition screenPosition = new ScreenPosition();
         BombLayer bombLayer = new BombLayer();
+        Size size = new Size();
 
         renderable.resourceId = renderSystem.getUnitResource();
-        renderable.sizex = renderSystem.getUnitSize();
-        renderable.sizey =renderSystem.getUnitSize();
-
-        MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
-        moveNode.moveable = moveable;
+        size.x = renderSystem.getUnitSize();
+        size.y =renderSystem.getUnitSize();
 
         bombLayer.damage = 1;
         bombLayer.depth = 2;
+
+        MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
+        moveNode.moveable = moveable;
 
         InputNode inputNode = new InputNode(cellPosition);
         inputNode.bombLayer = bombLayer;
         inputNode.moveable = moveable;
 
-        renderSystem.addToRender(player_id, renderable, screenPosition);
+        RenderNode renderNode = new RenderNode();
+        renderNode.pos = screenPosition;
+        renderNode.size = size;
+        renderNode.renderable = renderable;
+
+        renderSystem.addToRender(player_id, renderNode);
         movementSystem.addToMovement(player_id, moveNode);
         inputSystem.addToInput(player_id, inputNode);
         return player_id;
@@ -71,47 +78,88 @@ public class Factory {
         Renderable renderable = new Renderable();
         Collideable collideable = new Collideable();
         Destroyable destroyable = new Destroyable();
-        ScreenPosition screenPos = new ScreenPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
         CellPosition cellPosition = new CellPosition();
+        Size size = new Size();
 
         cellPosition.x = cellX;
         cellPosition.y = cellY;
 
-        screenPos.x = cellX*renderSystem.getUnitSize();
-        screenPos.y = cellY*renderSystem.getUnitSize();
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
 
         renderable.resourceId = renderSystem.getCrateResource();
-        renderable.sizex = renderSystem.getUnitSize();
-        renderable.sizey = renderSystem.getUnitSize();
+        size.x = renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
         collideable.height = 10;
         destroyable.hitPoints = 1;
 
-        MovementNode movnode = new MovementNode(cellPosition, screenPos);
+        MovementNode movnode = new MovementNode(cellPosition, screenPosition);
         movnode.collideable = collideable;
 
-        renderSystem.addToRender(crate_id, renderable, screenPos);
+        RenderNode renderNode = new RenderNode();
+        renderNode.pos = screenPosition;
+        renderNode.size = size;
+        renderNode.renderable = renderable;
+
+        renderSystem.addToRender(crate_id, renderNode);
         movementSystem.addToMovement(crate_id, movnode);
         return crate_id;
     }
 
     public int createTeleporter(int cellX, int cellY, int toX, int toY){
         int teleporter_id = Entity.createNewEntity();
+        Teleporter teleporter = new Teleporter();
+        CellPosition position = new CellPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
+        Renderable renderable = new Renderable();
+        Size size = new Size();
+
+        renderable.resourceId = renderSystem.getTeleporterResource();
+        size.x = renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
+
+        position.x = cellX;
+        position.y = cellY;
+
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+
+        teleporter.toX = toX;
+        teleporter.toY = toY;
+
+        MovementNode node = new MovementNode(position, screenPosition);
+        node.teleporter = teleporter;
+
+        RenderNode renderNode = new RenderNode();
+        renderNode.renderable = renderable;
+        renderNode.pos = screenPosition;
+        renderNode.size = size;
+
+        renderSystem.addToRender(teleporter_id, renderNode);
+        movementSystem.addToMovement(teleporter_id, node);
         return teleporter_id;
     }
 
     public int createBomb(int cellX, int cellY, int damage, int spread, int timeToDetonation){
         int bomb_id = Entity.createNewEntity();
         Renderable renderable = new Renderable();
-        ScreenPosition pos = new ScreenPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
+        Size size = new Size();
 
-        pos.x = cellX*renderSystem.getUnitSize();
-        pos.y = cellY*renderSystem.getUnitSize();
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
 
         renderable.resourceId = renderSystem.getBombResource();
-        renderable.sizex = renderSystem.getUnitSize();
-        renderable.sizey = renderSystem.getUnitSize();
+        size.x = renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
 
-        renderSystem.addToRender(bomb_id, renderable, pos);
+        RenderNode renderNode = new RenderNode();
+        renderNode.renderable = renderable;
+        renderNode.size = size;
+        renderNode.pos = screenPosition;
+
+        renderSystem.addToRender(bomb_id, renderNode);
 
         return bomb_id;
     }

@@ -1,8 +1,8 @@
 package systems;
 
-import base.Entity;
 import components.Renderable;
 import components.ScreenPosition;
+import components.Size;
 import nodes.RenderNode;
 
 import javax.imageio.ImageIO;
@@ -33,6 +33,8 @@ public class RenderSystem extends base.System{
     private int unitResource;
     private int bombResource;
     private int crateResource;
+    private int explosionResource;
+    private int teleporterResource;
 
     public RenderSystem(int sizex, int sizey) {
 
@@ -50,16 +52,18 @@ public class RenderSystem extends base.System{
                     Integer entity_id = entry.getKey();
                     Renderable renderable = node.renderable;
                     ScreenPosition pos = node.pos;
+                    Size size = node.size;
 
                     if(pos == null){
                         throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
                     }
 
-                    g.drawImage(resources.get(renderable.resourceId), pos.x, pos.y, renderable.sizex,
-                            renderable.sizey, null);
+                    g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
+                            pos.y - size.y/2, size.x, size.y, null);
                 }
             }
         };
+
         frame = new JFrame();
         frame.add(gamePanel);
         frame.pack();
@@ -74,6 +78,8 @@ public class RenderSystem extends base.System{
         unitResource = loadResource("res/unit.png");
         bombResource = loadResource("res/bomb.png");
         crateResource = loadResource("res/crate.png");
+        teleporterResource = loadResource("res/teleporter.png");
+        explosionResource = loadResource("res/explosion.png");
     }
 
     /* Render */
@@ -82,14 +88,11 @@ public class RenderSystem extends base.System{
         gamePanel.repaint();
     }
 
-    public void addToRender(int entity_id, Renderable renderable, ScreenPosition position){
+    public void addToRender(int entity_id, RenderNode node){
         if(nodes.containsKey(entity_id)){
             return;
         }
 
-        RenderNode node = new RenderNode();
-        node.renderable = renderable;
-        node.pos = position;
         nodes.put(entity_id, node);
     }
 
@@ -111,30 +114,6 @@ public class RenderSystem extends base.System{
         nodes.remove(id);
     }
 
-    public static void main(String[] args){
-        RenderSystem system = new RenderSystem(16, 16);
-        int someEntity = Entity.createNewEntity();
-        int picture = system.loadResource("res/bomb.png");
-
-        ScreenPosition pos = new ScreenPosition();
-        pos.x = 100;
-        pos.y = 100;
-
-        Renderable renderable = new Renderable();
-        renderable.resourceId = picture;
-        renderable.sizex = 64;
-        renderable.sizey = 64;
-
-        system.addToRender(someEntity, renderable, pos);
-        system.update(200);
-        try {
-            Thread.sleep(2500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        system.update(300);
-    }
-
     public int getCrateResource() {
         return crateResource;
     }
@@ -145,6 +124,14 @@ public class RenderSystem extends base.System{
 
     public int getBombResource() {
         return bombResource;
+    }
+
+    public int getExplosionResource() {
+        return explosionResource;
+    }
+
+    public int getTeleporterResource() {
+        return teleporterResource;
     }
 
     public int getUnitSize(){

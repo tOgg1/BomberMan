@@ -6,5 +6,6 @@ package components;
 public class Renderable {
 
     public int resourceId;
-    public int sizex, sizey;
+    public int status;
+
 }
