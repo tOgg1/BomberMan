@@ -14,9 +14,10 @@ public class Engine implements Runnable {
 
     private static Engine singleton;
 
+    private ArrayList<Integer> toDelete = new ArrayList<>();
 
     private Engine() {
-        Factory.getInstance();
+        factory = Factory.getInstance();
     }
 
     public static Engine getInstance(){
@@ -32,6 +33,15 @@ public class Engine implements Runnable {
 
         // Bad game loop
         for(;;){
+
+            for (Integer integer : toDelete) {
+                for (System system : systems) {
+                    system.removeEntity(integer);
+                }
+            }
+
+            toDelete.clear();
+
             prev = java.lang.System.currentTimeMillis();
 
             for (System system : systems) {
@@ -40,7 +50,7 @@ public class Engine implements Runnable {
 
             now = java.lang.System.currentTimeMillis();
 
-            java.lang.System.out.printf("Loop time: %d nanoseconds \r", java.lang.System.currentTimeMillis()- prev);
+            java.lang.System.out.printf("Loop time: %d ms \r", java.lang.System.currentTimeMillis()- prev);
 
             // Fill remaining time
             try {
@@ -48,7 +58,6 @@ public class Engine implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
 
             dt = now - prev;
         }
@@ -63,6 +72,6 @@ public class Engine implements Runnable {
     }
 
     public void removeEntity(int id){
-
+        toDelete.add(id);
     }
 }

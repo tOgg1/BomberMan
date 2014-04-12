@@ -13,6 +13,7 @@ public class TimedEffect extends Component {
 
     public static enum EffectType {
         NONE,
+        SINGULAR,
         SPREAD,
         VANISH,
     }

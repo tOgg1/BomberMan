@@ -24,7 +24,14 @@ public class Main {
 
         renderSystem.addKeyListener(inputSystem);
 
-        Factory factory = Factory.instantiate(renderSystem, movementSystem, inputSystem, combatSystem, aiSystem);
+        Factory factory = Factory.getInstance();
+        factory.schedulerSystem = schedulerSystem;
+        factory.powerupSystem = powerupSystem;
+        factory.renderSystem = renderSystem;
+        factory.aiSystem = aiSystem;
+        factory.combatSystem = combatSystem;
+        factory.inputSystem = inputSystem;
+        factory.movementSystem = movementSystem;
 
         MapCreator creator = new MapCreator(factory);
         creator.buildMap("res/maps/default.txt");

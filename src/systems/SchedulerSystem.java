@@ -20,14 +20,14 @@ public class SchedulerSystem extends base.System{
 
     @Override
     public void removeEntity(int id) {
-
+        timeables.remove(id);
     }
 
     @Override
     public void update(float dt) {
         for (Map.Entry<Integer, TimedEffect> entry : timeables.entrySet()) {
             TimedEffect eff = entry.getValue();
-            eff.timeRemaining--;
+            --eff.timeRemaining;
 
             if(eff.timeRemaining < 0){
                 engineRef.removeEntity(entry.getKey());
@@ -39,6 +39,7 @@ public class SchedulerSystem extends base.System{
         if(timeables.containsKey(entity_id))
             return false;
 
+        System.out.println("Added timed effect");
         timeables.put(entity_id, eff);
         return true;
     }

@@ -23,6 +23,8 @@ public class RenderSystem extends base.System{
     private Map<Integer, RenderNode> nodes = new HashMap<>();
     private Map<Integer, Image> resources = new HashMap<>();
 
+    private Map<Integer, RenderNode> temps = new HashMap<>();
+
     private JFrame frame;
     private JPanel gamePanel;
 
@@ -90,15 +92,22 @@ public class RenderSystem extends base.System{
     /* Render */
     @Override
     public void update(float dt) {
+
+        for (Map.Entry<Integer, RenderNode> entry : temps.entrySet()) {
+            nodes.put(entry.getKey(), entry.getValue());
+        }
+
+        temps.clear();
+
         gamePanel.repaint();
     }
 
     public void addToRender(int entity_id, RenderNode node){
-        if(nodes.containsKey(entity_id)){
+        if(nodes.containsKey(entity_id) || temps.containsKey(entity_id)){
             return;
         }
 
-        nodes.put(entity_id, node);
+        temps.put(entity_id, node);
     }
 
     public int loadResource(String pathToImage){

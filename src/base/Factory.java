@@ -7,33 +7,31 @@ import nodes.MovementNode;
 import nodes.RenderNode;
 import systems.*;
 
+import static components.TimedEffect.EffectType.*;
+
 /**
  * Created by tormod on 11.04.14.
  */
 public class Factory {
 
-    public final RenderSystem renderSystem;
-    public final MovementSystem movementSystem;
-    public final InputSystem inputSystem;
-    public final CombatSystem combatSystem;
+    public RenderSystem renderSystem;
+    public MovementSystem movementSystem;
+    public InputSystem inputSystem;
+    public CombatSystem combatSystem;
+    public AISystem aiSystem;
+    public SchedulerSystem schedulerSystem;
+    public MapSystem mapSystem;
+    public PowerupSystem powerupSystem;
 
     private static Factory singleton;
 
-    private Factory(RenderSystem renderSystem, MovementSystem movementSystem, InputSystem inputSystem,
-              CombatSystem combatSystem, AISystem aiSystem) {
-        this.renderSystem = renderSystem;
-        this.movementSystem = movementSystem;
-        this.inputSystem = inputSystem;
-        this.combatSystem = combatSystem;
-    }
-
-    public static Factory instantiate(RenderSystem renderSystem, MovementSystem movementSystem, InputSystem inputSystem,
-                                   CombatSystem combatSystem, AISystem aiSystem){
-        singleton = new Factory(renderSystem, movementSystem, inputSystem, combatSystem, aiSystem);
-        return singleton;
+    public Factory() {
     }
 
     public static Factory getInstance(){
+        if(singleton == null){
+            singleton = new Factory();
+        }
         return singleton;
     }
 
@@ -57,7 +55,7 @@ public class Factory {
         screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
 
         bombLayer.damage = 1;
-        bombLayer.depth = 2;
+        bombLayer.depth = 5;
 
         MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
         moveNode.moveable = moveable;
@@ -150,6 +148,10 @@ public class Factory {
         int bomb_id = Entity.createNewEntity();
         Renderable renderable = new Renderable();
         ScreenPosition screenPosition = new ScreenPosition();
+        CellPosition cellPosition = new CellPosition();
+
+        cellPosition.x = cellX;
+        cellPosition.y = cellY;
         Size size = new Size();
         TimedEffect effect = new TimedEffect();
         Damager damager = new Damager();
@@ -157,8 +159,9 @@ public class Factory {
         damager.inflictDamage = 1;
 
         effect.timeRemaining = timeToDetonation;
-        effect.effectType = TimedEffect.EffectType.SPREAD;
+        effect.effectType = SPREAD;
         effect.parameter = depth;
+        effect.createType = TimedEffect.CreateType.EXPLOSION;
 
         screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
         screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
@@ -170,9 +173,36 @@ public class Factory {
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.renderable = renderable;
+        combatNode.effect = effect;
+        combatNode.damager = damager;
+
+        combatSystem.addToCombat(bomb_id, combatNode);
+        schedulerSystem.addTimedEffect(bomb_id, effect);
         renderSystem.addToRender(bomb_id, renderNode);
 
         return bomb_id;
+    }
+
+    public int createExplosionDamager(int cellX, int cellY, int damage){
+        java.lang.System.out.println("lol");
+        int exploder_id = Entity.createNewEntity();
+        CellPosition position = new CellPosition();
+        Damager damager = new Damager();
+        damager.inflictDamage = damage;
+
+        TimedEffect effect = new TimedEffect();
+        effect.effectType = VANISH;
+        effect.timeRemaining = 1;
+
+        CombatNode combatNode = new CombatNode(position);
+
+        combatSystem.addToCombat(exploder_id, combatNode);
+        schedulerSystem.addTimedEffect(exploder_id, effect);
+
+        return exploder_id;
+
     }
 
     public int createBot(int cellX, int cellY){
@@ -215,13 +245,15 @@ public class Factory {
     }
 
     public int createExplosion(int cellX, int cellY){
+        java.lang.System.out.println("hellooo");
         int expl_id = Entity.createNewEntity();
         Renderable renderable = new Renderable();
         CellPosition cellPosition = new CellPosition();
         ScreenPosition screenPosition = new ScreenPosition();
         Size size = new Size();
         TimedEffect effect = new TimedEffect();
-        effect.effectType = TimedEffect.EffectType.VANISH;
+
+        effect.effectType = VANISH;
         effect.timeRemaining = 20;
 
         cellPosition.x = cellX;
@@ -238,8 +270,9 @@ public class Factory {
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
-        CombatNode combatNode = new CombatNode(cellPosition, renderable);
+        CombatNode combatNode = new CombatNode(cellPosition);
         combatNode.effect = effect;
+        combatNode.renderable = renderable;
 
         renderSystem.addToRender(expl_id, renderNode);
         combatSystem.addToCombat(expl_id, combatNode);

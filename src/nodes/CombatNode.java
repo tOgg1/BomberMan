@@ -12,8 +12,9 @@ public class CombatNode {
     public TimedEffect effect;
     public Destroyable destroyable;
     public Renderable renderable;
+    public Collideable collideable;
 
-    public CombatNode(CellPosition pos, Renderable renderable) {
+    public CombatNode(CellPosition pos) {
         this.pos = pos;
     }
 
@@ -27,6 +28,10 @@ public class CombatNode {
 
     public boolean isDamager(){
         return damager != null;
+    }
+
+    public boolean isCollideable(){
+        return collideable != null;
     }
 
 }
