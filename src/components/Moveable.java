@@ -8,13 +8,11 @@ import base.Component;
 public class Moveable extends Component {
 
     public boolean move = false;
-    public Direction curDir = Direction.UP;
+    public int curDir = UP;
     public int speed = 2;
 
-    public enum Direction{
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT
-    }
+    public final static int UP = 0x00000001;
+    public final static int DOWN = 0x00000002;
+    public final static int RIGHT = 0x00000004;
+    public final static int LEFT = 0x00000008;
 }

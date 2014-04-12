@@ -1,6 +1,7 @@
 package systems;
 
 import components.TimedEffect;
+import nodes.CombatNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 public class CombatSystem extends base.System {
 
     private Map<Integer, TimedEffect> effects = new HashMap<Integer, TimedEffect>();
+    private Map<Integer, CombatNode> nodes = new HashMap<>();
 
     @Override
     public void removeEntity(int id) {

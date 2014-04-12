@@ -33,6 +33,8 @@ public class RenderSystem extends base.System{
     private int unitResource;
     private int bombResource;
     private int crateResource;
+    private int crateDamagedOneResource;
+    private int crateDamagedTwoResource;
     private int explosionResource;
     private int teleporterResource;
 
@@ -49,7 +51,6 @@ public class RenderSystem extends base.System{
 
                 for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
                     RenderNode node = entry.getValue();
-                    Integer entity_id = entry.getKey();
                     Renderable renderable = node.renderable;
                     ScreenPosition pos = node.pos;
                     Size size = node.size;
@@ -74,10 +75,12 @@ public class RenderSystem extends base.System{
         frame.setVisible(true);
         frame.setResizable(false);
 
-        /* Load assetse */
+        /* Load assets */
         unitResource = loadResource("res/unit.png");
         bombResource = loadResource("res/bomb.png");
         crateResource = loadResource("res/crate.png");
+        crateDamagedOneResource = loadResource("res/crate_damaged_1.png");
+        crateDamagedTwoResource = loadResource("res/crate_damaged_2.png");
         teleporterResource = loadResource("res/teleporter.png");
         explosionResource = loadResource("res/explosion.png");
     }

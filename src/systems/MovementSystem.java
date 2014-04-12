@@ -1,13 +1,13 @@
 package systems;
 
-import components.CellPosition;
-import components.Moveable;
-import components.ScreenPosition;
-import components.Teleporter;
+import base.Util;
+import components.*;
 import nodes.MovementNode;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static components.Moveable.*;
 
 /**
  * Created by tormod on 11.04.14.
@@ -30,6 +30,7 @@ public class MovementSystem extends base.System {
         nodes.remove(id);
     }
 
+    //TODO: Redo
     @Override
     public void update(float dt) {
 
@@ -39,53 +40,102 @@ public class MovementSystem extends base.System {
             CellPosition position = node.pos;
             ScreenPosition screenPosition = node.screenPos;
             Moveable moveable = node.moveable;
+            Size size = node.size;
 
             if(moveable == null){
                 continue;
             }
 
             if(moveable.move){
-                switch(moveable.curDir){
-                    case UP:
-                        screenPosition.y -= moveable.speed;
-                        if(screenPosition.y/tileSizeY < position.y){
-                            if(!moveMoveableInGrid(node, position.x, position.y-1)){
-                                screenPosition.y += moveable.speed;
-                            }
-                        }
-                        break;
-                    case DOWN:
-                        screenPosition.y += moveable.speed ;
-                        if(screenPosition.y/tileSizeY > position.y){
-                            if(!moveMoveableInGrid(node, position.x, position.y+1)){
-                                screenPosition.y -= moveable.speed;
-                            }
-                        }
-                        break;
-                    case LEFT:
-                        screenPosition.x -= moveable.speed;
-                        if(screenPosition.x/tileSizeX < position.x){
-                            if(!moveMoveableInGrid(node, position.x-1, position.y)){
-                                screenPosition.x += moveable.speed;
-                            }
-                        }
-                        break;
-                    case RIGHT:
-                        screenPosition.x += moveable.speed;
-                        if(screenPosition.x/tileSizeX > position.x){
-                            if(!moveMoveableInGrid(node, position.x+1, position.y)){
-                                screenPosition.x -= moveable.speed;
-                            }
-                        }
-                        break;
 
+                if((moveable.curDir & UP) > 0) {
+
+                    if(canMoveTo(node, screenPosition.x, screenPosition.y-moveable.speed)){
+                        screenPosition.y -= moveable.speed;
+                    }
+
+                    if ((screenPosition.y - size.y/2) / tileSizeY < position.y) {
+                        changeCell(node, position.x, position.y - 1);
+                    }
                 }
+
+                if((moveable.curDir & DOWN) > 0) {
+
+                    if(canMoveTo(node, screenPosition.x, screenPosition.y+moveable.speed)){
+                        screenPosition.y += moveable.speed;
+                    }
+
+                    if ((screenPosition.y + size.y/2) / tileSizeY > position.y) {
+                        changeCell(node, position.x, position.y + 1);
+                    }
+                }
+
+                if((moveable.curDir & LEFT) > 0) {
+
+                    if(canMoveTo(node, screenPosition.x - moveable.speed, screenPosition.y)){
+                        screenPosition.x -= moveable.speed;
+                    }
+
+                    if ((screenPosition.x - size.x/2) / tileSizeX < position.x) {
+                        changeCell(node, position.x-1, position.y);
+                    }
+                }
+
+                if((moveable.curDir & RIGHT) > 0) {
+
+                    if(canMoveTo(node, screenPosition.x + moveable.speed, screenPosition.y)){
+                        screenPosition.x += moveable.speed;
+                    }
+
+                    if ((screenPosition.x + size.x/2) / tileSizeX > position.x) {
+                        changeCell(node, position.x+1, position.y);
+                    }
+                }
+
                 moveable.move = false;
             }
         }
     }
 
-    public boolean moveMoveableInGrid(MovementNode node, int newX, int newY){
+    public boolean canMoveTo(MovementNode node, int screenX, int screenY){
+        int cellX = screenX/tileSizeX;
+        int cellY = screenY/tileSizeY;
+
+        if(screenX < 0 || screenX > tileSizeX*sizex || screenY < 0 || screenY > tileSizeY*sizey){
+            System.out.println("Outside the screen");
+            return false;
+        }
+
+        Util.Rect2 c;
+        c = new Util.Rect2(screenX, screenY, node.size.x, node.size.y);
+        System.out.println(c.toString());
+
+        for (Map.Entry<Integer, MovementNode> entry : nodes.entrySet()) {
+            MovementNode _node = entry.getValue();
+
+
+            if(_node == node)
+                continue;
+
+            if(Math.abs(_node.pos.x-cellX) < 2 && Math.abs(_node.pos.y - cellY) < 2) {
+
+                // Check rectangular collision
+                Util.Rect2 a, b;
+                a = new Util.Rect2(screenX, screenY, node.size.x, node.size.y);
+                // Add a 5 px margin
+                b = new Util.Rect2(_node.screenPos.x, _node.screenPos.y, _node.size.x-5, _node.size.y-5);
+
+
+                if (a.intersects(b))
+                    return false;
+            }else{
+                continue;
+            }
+        }
+        return true;
+    }
+
+    public boolean changeCell(MovementNode node, int newX, int newY){
         for (Map.Entry<Integer, MovementNode> entry : nodes.entrySet()) {
             MovementNode _node = entry.getValue();
 

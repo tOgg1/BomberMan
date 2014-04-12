@@ -9,6 +9,7 @@ public class MovementNode {
     public Collideable collideable;
     public Teleporter teleporter;
     public Moveable moveable;
+    public Size size;
     public final CellPosition pos;
     public final ScreenPosition screenPos;
 

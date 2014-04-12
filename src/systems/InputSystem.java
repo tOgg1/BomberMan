@@ -1,13 +1,14 @@
 package systems;
 
 import base.Engine;
-import components.Moveable;
 import nodes.InputNode;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Map;
+
+import static components.Moveable.*;
 
 /**
  * Created by tormod on 11.04.14.
@@ -42,21 +43,30 @@ public class InputSystem extends base.System implements KeyListener {
             }
         }
 
-        Moveable.Direction d;
+        int moveFlag = 0;
+
         if(keyMap[KeyEvent.VK_LEFT]) {
-            d = Moveable.Direction.LEFT;
-        } else if(keyMap[KeyEvent.VK_RIGHT]) {
-            d = Moveable.Direction.RIGHT;
-        } else if(keyMap[KeyEvent.VK_UP]) {
-            d = Moveable.Direction.UP;
-        } else if(keyMap[KeyEvent.VK_DOWN]) {
-            d = Moveable.Direction.DOWN;
-        }else{
-            return;
+            moveFlag |= LEFT;
         }
 
+        if(keyMap[KeyEvent.VK_RIGHT]) {
+            moveFlag |= RIGHT;
+        }
+
+        if(keyMap[KeyEvent.VK_UP]) {
+            moveFlag |= UP;
+        }
+
+        if(keyMap[KeyEvent.VK_DOWN]) {
+            moveFlag |= DOWN;
+        }
+
+        if(moveFlag == 0)
+            return;
+
         for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
-            entry.getValue().moveable.curDir = d;
+            entry.getValue().moveable.curDir = moveFlag;
+            System.out.println(moveFlag);
             entry.getValue().moveable.move = true;
         }
     }

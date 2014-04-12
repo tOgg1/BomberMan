@@ -50,13 +50,14 @@ public class Factory {
 
         renderable.resourceId = renderSystem.getUnitResource();
         size.x = renderSystem.getUnitSize();
-        size.y =renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
 
         bombLayer.damage = 1;
         bombLayer.depth = 2;
 
         MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
         moveNode.moveable = moveable;
+        moveNode.size = size;
 
         InputNode inputNode = new InputNode(cellPosition);
         inputNode.bombLayer = bombLayer;
@@ -96,6 +97,8 @@ public class Factory {
 
         MovementNode movnode = new MovementNode(cellPosition, screenPosition);
         movnode.collideable = collideable;
+        movnode.size = size;
+
 
         RenderNode renderNode = new RenderNode();
         renderNode.pos = screenPosition;
@@ -130,6 +133,7 @@ public class Factory {
 
         MovementNode node = new MovementNode(position, screenPosition);
         node.teleporter = teleporter;
+        node.size = size;
 
         RenderNode renderNode = new RenderNode();
         renderNode.renderable = renderable;

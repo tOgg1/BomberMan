@@ -7,6 +7,9 @@ import base.Component;
  */
 public class PowerupPlayer extends Component {
 
+    public Feature addsFeature;
+    public int amount;
+
     enum Feature {
         FLAME_LENGTH,
         BOMB_AMOUNT,
