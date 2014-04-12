@@ -77,6 +77,10 @@ public class InputSystem extends base.System implements KeyListener {
             moveFlag |= DOWN;
         }
 
+        if(keyMap[KeyEvent.VK_ESCAPE]) {
+            System.exit(0);
+        }
+
         if(moveFlag == 0)
             return;
 

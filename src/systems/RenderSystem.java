@@ -32,7 +32,11 @@ public class RenderSystem extends base.System{
 
     private final int sizex, sizey;
 
-    private int unitResource;
+    private int unitRedResource;
+    private int unitBlueResource;
+    private int unitPurpleResource;
+    private int unitYellowResource;
+    private int unitPinkResource;
     private int bombResource;
     private int crateResource;
     private int crateDamagedOneResource;
@@ -40,9 +44,6 @@ public class RenderSystem extends base.System{
     private int metalResource;
     private int explosionResource;
     private int teleporterResource;
-    private int powerupFireResource;
-    private int powerupBombResource;
-
     public RenderSystem(int sizex, int sizey) {
 
         this.sizex = sizex;
@@ -81,7 +82,6 @@ public class RenderSystem extends base.System{
         frame.setResizable(false);
 
         /* Load assets */
-        unitResource = loadResource("res/unit.png");
         bombResource = loadResource("res/bomb.png");
         crateResource = loadResource("res/crate.png");
         crateDamagedOneResource = loadResource("res/crate_damaged_1.png");
@@ -91,7 +91,16 @@ public class RenderSystem extends base.System{
         explosionResource = loadResource("res/explosion.png");
         powerupBombResource = loadResource("res/powerup_bomb.png");
         powerupFireResource = loadResource("res/powerup_fire.png");
+        unitRedResource = loadResource("res/unit_red.png");
+        unitBlueResource = loadResource("res/unit_blue.png");
+        unitPurpleResource = loadResource("res/unit_purple.png");
+        unitYellowResource = loadResource("res/unit_yellow.png");
+        unitPinkResource = loadResource("res/unit_pink.png");
     }
+
+    private int powerupFireResource;
+
+    private int powerupBombResource;
 
     /* Render */
     @Override
@@ -135,8 +144,24 @@ public class RenderSystem extends base.System{
         return crateResource;
     }
 
-    public int getUnitResource() {
-        return unitResource;
+    public int getUnitRedResource() {
+        return unitRedResource;
+    }
+
+    public int getUnitBlueResource() {
+        return unitBlueResource;
+    }
+
+    public int getUnitPurpleResource() {
+        return unitPurpleResource;
+    }
+
+    public int getUnitYellowResource() {
+        return unitYellowResource;
+    }
+
+    public int getUnitPinkResource() {
+        return unitPinkResource;
     }
 
     public int getBombResource() {

@@ -205,7 +205,6 @@ public class CombatSystem extends base.System {
 
         BombLayer bombLayer = nodes.get(entity_id).bombLayer;
 
-        System.out.println(bombLayer.toString());
         bombLayer.depth += depth != null ? depth : 0;
         bombLayer.maxCount += maxCount != null ? maxCount : 0;
         bombLayer.curCount += curCount != null ? curCount : 0;
@@ -214,8 +213,6 @@ public class CombatSystem extends base.System {
 
         if(bombLayer.curCount > bombLayer.maxCount)
             bombLayer.curCount = bombLayer.maxCount;
-        System.out.println(bombLayer.toString());
-
         return true;
 
     }

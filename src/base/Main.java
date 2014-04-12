@@ -47,7 +47,5 @@ public class Main {
         engine.addSystem(powerupSystem);
 
         engine.run();
-
     }
-
 }

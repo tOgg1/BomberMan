@@ -16,4 +16,13 @@ public class CellPosition extends Component {
                 ", y=" + y +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object position) {
+        if (position instanceof CellPosition) {
+            CellPosition pos = (CellPosition) position;
+            return x == pos.x && y == pos.y;
+        }
+        return false;
+    }
 }

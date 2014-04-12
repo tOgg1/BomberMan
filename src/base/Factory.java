@@ -47,8 +47,9 @@ public class Factory {
         ScreenPosition screenPosition = new ScreenPosition();
         BombLayer bombLayer = new BombLayer();
         Size size = new Size();
+        Destroyable destroyable = new Destroyable();
 
-        renderable.resourceId = renderSystem.getUnitResource();
+        renderable.resourceId = renderSystem.getUnitBlueResource();
 
         createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
         createDefaultSize(size);
