@@ -3,6 +3,7 @@ package systems;
 import base.Engine;
 import components.PowerupPlayer;
 import nodes.InputNode;
+import nodes.PowerupNode;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -50,8 +51,7 @@ public class InputSystem extends base.System implements KeyListener {
                     PowerupPlayer powerup = new PowerupPlayer();
                     powerup.addsFeature = PowerupPlayer.Feature.BOMB_TEMP_COUNT;
                     powerup.amount = -1;
-                    engine.factory.addPowerupToEntity(entry.getKey(), powerup);
-                    --node.bombLayer.curCount;
+                    engine.factory.addPowerupToEntity(entry.getKey(), powerup, PowerupNode.PowerupDuration.TEMPORARY, 40);
 
                     // Set handled
                     keyMap[KeyEvent.VK_SPACE] = false;

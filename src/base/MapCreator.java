@@ -30,7 +30,6 @@ public class MapCreator {
         try{
             int[][] map = parseMap(path);
             for (int i = 0; i < map.length; i++) {
-                java.lang.System.out.print("\n");
                 for (int j = 0; j < map[i].length; j++) {
                     switch(map[i][j]){
                         default:
@@ -110,10 +109,8 @@ public class MapCreator {
             String rawString = raw.toString();
 
             // Parse the file
-            java.lang.System.out.println(rawString.charAt(0));
 
             if(!rawString.matches("^s:\\d\\dx\\d\\d.*")){
-                java.lang.System.out.println(rawString);
                 throw new IllegalArgumentException("File header (e.g. s:16x16) is missing or malformatted");
             }
 
@@ -129,8 +126,6 @@ public class MapCreator {
                 header = header.replaceAll("^s:","");
 
                 String[] sizes = header.split("x");
-                java.lang.System.out.println(sizes[0]);
-                java.lang.System.out.println(sizes[1]);
                 sizex = Integer.parseInt(sizes[0]);
                 sizey = Integer.parseInt(sizes[1]);
             }
@@ -205,18 +200,15 @@ public class MapCreator {
 
         for (String line : lines) {
             if(!line.matches("^\\d+:[a-zA-Z0-9:]*")){
-                java.lang.System.out.println("Here: " + line);
                 return false;
             }
 
             if(!columnIsWellFormatted(line, sizex)){
-                java.lang.System.out.println("Here2");
                 return false;
             }
         }
 
         if(hasRowDuplicates(lines)){
-            java.lang.System.out.println("Here3");
             return false;
         }
 
@@ -254,8 +246,6 @@ public class MapCreator {
                 }
             }
         }
-        java.lang.System.out.println(line);
-        java.lang.System.out.println(index-1);
 
         if(index-1 > sizex)
             return false;

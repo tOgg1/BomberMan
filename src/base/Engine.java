@@ -9,7 +9,6 @@ public class Engine implements Runnable {
     private ArrayList<System> systems = new ArrayList<System>();
 
     private long frameTime = 1000/24;
-
     public Factory factory;
 
     private static Engine singleton;
@@ -53,7 +52,8 @@ public class Engine implements Runnable {
 
             // Fill remaining time
             try {
-                Thread.sleep(frameTime - (now - prev));
+                if(frameTime - (now-prev) > 0)
+                    Thread.sleep(frameTime - (now - prev));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -10,6 +10,7 @@ public class MovementNode {
     public Teleporter teleporter;
     public Moveable moveable;
     public Size size;
+    public PowerupPlayer powerupPlayer;
     public final CellPosition pos;
     public final ScreenPosition screenPos;
 
@@ -28,5 +29,9 @@ public class MovementNode {
 
     public boolean isMoveable(){
         return moveable != null;
+    }
+
+    public boolean isPowerup(){
+        return powerupPlayer != null;
     }
 }

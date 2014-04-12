@@ -25,6 +25,8 @@ public class Main {
         renderSystem.addKeyListener(inputSystem);
 
         Factory factory = Factory.getInstance();
+        engine.factory = factory;
+
         factory.schedulerSystem = schedulerSystem;
         factory.powerupSystem = powerupSystem;
         factory.renderSystem = renderSystem;
@@ -35,7 +37,6 @@ public class Main {
 
         MapCreator creator = new MapCreator(factory);
         creator.buildMap("res/maps/default.txt");
-        engine.factory = factory;
 
         engine.addSystem(renderSystem);
         engine.addSystem(movementSystem);
@@ -43,6 +44,7 @@ public class Main {
         engine.addSystem(inputSystem);
         engine.addSystem(aiSystem);
         engine.addSystem(schedulerSystem);
+        engine.addSystem(powerupSystem);
 
         engine.run();
 

@@ -40,6 +40,8 @@ public class RenderSystem extends base.System{
     private int metalResource;
     private int explosionResource;
     private int teleporterResource;
+    private int powerupFireResource;
+    private int powerupBombResource;
 
     public RenderSystem(int sizex, int sizey) {
 
@@ -58,7 +60,7 @@ public class RenderSystem extends base.System{
                     ScreenPosition pos = node.pos;
                     Size size = node.size;
 
-                    if(pos == null){
+                    if(pos == null) {
                         throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
                     }
 
@@ -87,6 +89,8 @@ public class RenderSystem extends base.System{
         metalResource = loadResource("res/metal.png");
         teleporterResource = loadResource("res/teleporter.png");
         explosionResource = loadResource("res/explosion.png");
+        powerupBombResource = loadResource("res/powerup_bomb.png");
+        powerupFireResource = loadResource("res/powerup_fire.png");
     }
 
     /* Render */
@@ -114,7 +118,6 @@ public class RenderSystem extends base.System{
         File img = new File(pathToImage);
         try {
             BufferedImage image = ImageIO.read(img);
-            System.out.println(image);
             resources.put(resources.size(), image);
             return resources.size()-1;
         } catch (IOException e) {
@@ -160,6 +163,13 @@ public class RenderSystem extends base.System{
         return metalResource;
     }
 
+    public int getPowerupFireResource() {
+        return powerupFireResource;
+    }
+
+    public int getPowerupBombResource() {
+        return powerupBombResource;
+    }
 
     public int getUnitSize(){
         return SCREEN_HEIGHT/sizex;

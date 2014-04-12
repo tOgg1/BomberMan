@@ -7,6 +7,8 @@ import base.Component;
  */
 public class PowerupPlayer extends Component {
 
+    public static int powerUpCount = 3;
+
     public Feature addsFeature;
     public int amount;
 
@@ -14,8 +16,9 @@ public class PowerupPlayer extends Component {
         FLAME_LENGTH,
         BOMB_MAX_COUNT,
         BOMB_TEMP_COUNT,
+        DAMAGE,
         SPEED,
         CAN_JUMP,
-        CAN_PUSH
+        CAN_PUSH;
     }
 }

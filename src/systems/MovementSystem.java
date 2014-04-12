@@ -1,8 +1,10 @@
 package systems;
 
+import base.Engine;
 import base.Util;
 import components.*;
 import nodes.MovementNode;
+import nodes.PowerupNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +57,7 @@ public class MovementSystem extends base.System {
                     }
 
                     if ((screenPosition.y) / tileSizeY < position.y) {
-                        changeCell(node, position.x, position.y - 1);
+                        changeCell(entry.getKey(), node, position.x, position.y - 1);
                     }
                 }
 
@@ -66,7 +68,7 @@ public class MovementSystem extends base.System {
                     }
 
                     if ((screenPosition.y) / tileSizeY > position.y) {
-                        changeCell(node, position.x, position.y + 1);
+                        changeCell(entry.getKey(), node, position.x, position.y + 1);
                     }
                 }
 
@@ -77,7 +79,7 @@ public class MovementSystem extends base.System {
                     }
 
                     if ((screenPosition.x) / tileSizeX < position.x) {
-                        changeCell(node, position.x-1, position.y);
+                        changeCell(entry.getKey(), node, position.x-1, position.y);
                     }
                 }
 
@@ -88,7 +90,7 @@ public class MovementSystem extends base.System {
                     }
 
                     if ((screenPosition.x) / tileSizeX > position.x) {
-                        changeCell(node, position.x+1, position.y);
+                        changeCell(entry.getKey(), node, position.x+1, position.y);
                     }
                 }
 
@@ -145,7 +147,7 @@ public class MovementSystem extends base.System {
         return true;
     }
 
-    public boolean changeCell(MovementNode node, int newX, int newY){
+    public boolean changeCell(int entity_id, MovementNode node, int newX, int newY){
         for (Map.Entry<Integer, MovementNode> entry : nodes.entrySet()) {
             MovementNode _node = entry.getValue();
 
@@ -166,8 +168,14 @@ public class MovementSystem extends base.System {
                 node.pos.y = tele.toY;
                 node.screenPos.x = node.pos.x*tileSizeX + node.size.x/2;
                 node.screenPos.y = node.pos.y*tileSizeY + node.size.y/2;
-                return true;
             }
+
+            if(_node.isPowerup()){
+                Engine.getInstance().factory.addPowerupToEntity(entity_id, _node.powerupPlayer, PowerupNode.PowerupDuration.FOREVER, -1);
+                Engine.getInstance().removeEntity(entry.getKey());
+            }
+
+            return true;
         }
         node.pos.x = newX;
         node.pos.y = newY;

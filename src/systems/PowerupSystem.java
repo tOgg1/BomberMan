@@ -3,17 +3,20 @@ package systems;
 import components.PowerupPlayer;
 import nodes.PowerupNode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
-import static nodes.PowerupNode.PowerupDuration.*;
+import static nodes.PowerupNode.PowerupDuration.FOREVER;
+import static nodes.PowerupNode.PowerupDuration.TEMPORARY;
 
 /**
  * Created by tormod on 11.04.14.
  */
 public class PowerupSystem extends base.System{
 
-    private Map<Integer, PowerupNode> nodes;
-    private Map<Integer, PowerupNode> temps;
+    private Map<Integer, PowerupNode> nodes = new HashMap<>();
+    private Map<Integer, PowerupNode> temps = new HashMap<>();
     private final MovementSystem movementSystem;
     private final CombatSystem combatSystem;
 
@@ -23,14 +26,13 @@ public class PowerupSystem extends base.System{
     }
 
     public void addToPowerUp(int entity_id, PowerupNode node){
-        if(nodes.containsKey(entity_id) || temps.containsKey(entity_id))
-            return;
         temps.put(entity_id, node);
     }
 
     @Override
     public void removeEntity(int id) {
-
+        nodes.remove(id);
+        temps.remove(id);
     }
 
 
@@ -48,6 +50,8 @@ public class PowerupSystem extends base.System{
         }
         temps.clear();
 
+        ArrayList<Integer> toRemove = new ArrayList<>();
+
         for (Map.Entry<Integer, PowerupNode> entry : nodes.entrySet()) {
             PowerupNode node = entry.getValue();
 
@@ -60,17 +64,27 @@ public class PowerupSystem extends base.System{
                     temp.addsFeature = entry.getValue().powerup.addsFeature;
                     temp.amount = -entry.getValue().powerup.amount;
                     executePowerUp(entry.getKey(), temp);
+                    toRemove.add(entry.getKey());
+                }else{
+                    --node.timeRemaining;
                 }
             // This should never happen
             } else if(node.duration == FOREVER){
                 throw new IllegalStateException("How did you manage this?");
             }
         }
+
+        for (Integer integer : toRemove) {
+            nodes.remove(integer);
+        }
     }
 
     public void executePowerUp(int entity_id, PowerupPlayer powerup){
+        System.out.println("SUP0");
+
         if(powerup == null)
             return;
+        System.out.println("SUP");
 
         switch(powerup.addsFeature){
             case BOMB_MAX_COUNT:
@@ -86,7 +100,7 @@ public class PowerupSystem extends base.System{
 
                 break;
             case FLAME_LENGTH:
-                combatSystem.updateBombLayer(entity_id, null, null, null, powerup.amount);
+                combatSystem.updateBombLayer(entity_id, powerup.amount, null, null, null);
                 break;
             case SPEED:
 

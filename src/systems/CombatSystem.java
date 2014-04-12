@@ -9,6 +9,7 @@ import nodes.CombatNode;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by tormod on 11.04.14.
@@ -118,7 +119,6 @@ public class CombatSystem extends base.System {
             depth--;
             newPos.x += dx;
             newPos.y += dy;
-            System.out.println("propagating");
             if(node.effect.createType == MapEffect.CreateType.EXPLOSION){
 
                 engine.factory.createExplosionDamager(newPos.x, newPos.y, node.damager.inflictDamage);
@@ -156,25 +156,19 @@ public class CombatSystem extends base.System {
     public void doDamage(CombatNode damager){
         for (Map.Entry<Integer, CombatNode> entry : nodes.entrySet()) {
             CombatNode _node = entry.getValue();
-            System.out.println("Attempting to do damage");
             if(_node == damager) {
-                //System.out.println("Hello One");
                 continue;
             }
 
             if(!_node.isDestroyable()) {
-                //System.out.println("Hello Two");
                 continue;
             }
 
 
             if(_node.pos.x != damager.pos.x || _node.pos.y != damager.pos.y){
-                System.out.println(_node.pos.toString());
-                System.out.println(damager.pos.toString());
                 continue;
             }
 
-            System.out.println("Doing damage");
             --_node.destroyable.hitPoints;
 
             if(-_node.destroyable.hitPoints <= 0) {
@@ -184,25 +178,49 @@ public class CombatSystem extends base.System {
     }
 
     public void kill(int entity_id, CombatNode node){
+
+        if(node.destroyable.dropsPowerups > 0){
+            Random ran = new Random();
+            ran.setSeed(System.currentTimeMillis());
+            double random = ran.nextDouble();
+
+            if(ranFunction(node.destroyable.dropsPowerups) > random){
+                engine.factory.createRandomPowerup(node.pos.x, node.pos.y);
+            }
+
+        }
         engine.removeEntity(entity_id);
+
     }
 
     public boolean updateBombLayer(int entity_id, Integer depth, Integer damage, Integer  maxCount, Integer curCount){
+        System.out.println("Hello");
         if(!nodes.containsKey(entity_id))
             return false;
 
         if(!nodes.get(entity_id).isBombLayer()) {
             return false;
         }
+        System.out.println("Hello");
 
         BombLayer bombLayer = nodes.get(entity_id).bombLayer;
 
+        System.out.println(bombLayer.toString());
         bombLayer.depth += depth != null ? depth : 0;
         bombLayer.maxCount += maxCount != null ? maxCount : 0;
         bombLayer.curCount += curCount != null ? curCount : 0;
+        bombLayer.curCount += maxCount != null ? maxCount : 0;
         bombLayer.damage += damage != null ? damage : 0;
+
+        if(bombLayer.curCount > bombLayer.maxCount)
+            bombLayer.curCount = bombLayer.maxCount;
+        System.out.println(bombLayer.toString());
 
         return true;
 
+    }
+
+    public double ranFunction(int x){
+        return 1 - Math.exp(-x);
     }
 }

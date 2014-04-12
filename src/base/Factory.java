@@ -4,7 +4,12 @@ import components.*;
 import nodes.*;
 import systems.*;
 
-import static components.MapEffect.EffectType.*;
+import java.util.Random;
+
+import static components.MapEffect.EffectType.SPREAD;
+import static components.MapEffect.EffectType.VANISH;
+import static components.PowerupPlayer.Feature.BOMB_MAX_COUNT;
+import static components.PowerupPlayer.Feature.FLAME_LENGTH;
 
 /**
  * Created by tormod on 11.04.14.
@@ -36,7 +41,6 @@ public class Factory {
         int player_id = Entity.createNewEntity();
 
         Renderable renderable = new Renderable();
-        Damager damager = new Damager();
         Moveable moveable = new Moveable();
         Score score = new Score();
         CellPosition cellPosition = new CellPosition();
@@ -45,11 +49,9 @@ public class Factory {
         Size size = new Size();
 
         renderable.resourceId = renderSystem.getUnitResource();
-        size.x = renderSystem.getUnitSize();
-        size.y = renderSystem.getUnitSize();
 
-        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
-        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
 
         bombLayer.damage = 1;
         bombLayer.depth = 2;
@@ -67,6 +69,11 @@ public class Factory {
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.renderable = renderable;
+        combatNode.bombLayer = bombLayer;
+
+        combatSystem.addToCombat(player_id, combatNode);
         renderSystem.addToRender(player_id, renderNode);
         movementSystem.addToMovement(player_id, moveNode);
         inputSystem.addToInput(player_id, inputNode);
@@ -82,20 +89,16 @@ public class Factory {
         CellPosition cellPosition = new CellPosition();
         Size size = new Size();
 
-        cellPosition.x = cellX;
-        cellPosition.y = cellY;
-
-        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
-        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
 
         renderable.resourceId = renderSystem.getCrateResource();
-        size.x = renderSystem.getUnitSize();
-        size.y = renderSystem.getUnitSize();
 
         collideable.height = 10;
         collideable.margin = 10;
 
         destroyable.hitPoints = 1;
+        destroyable.dropsPowerups = 1;
 
         MovementNode movnode = new MovementNode(cellPosition, screenPosition);
         movnode.collideable = collideable;
@@ -117,25 +120,21 @@ public class Factory {
     public int createTeleporter(int cellX, int cellY, int toX, int toY){
         int teleporter_id = Entity.createNewEntity();
         Teleporter teleporter = new Teleporter();
-        CellPosition position = new CellPosition();
+        CellPosition cellPosition = new CellPosition();
         ScreenPosition screenPosition = new ScreenPosition();
         Renderable renderable = new Renderable();
         Size size = new Size();
 
         renderable.resourceId = renderSystem.getTeleporterResource();
-        size.x = renderSystem.getUnitSize();
-        size.y = renderSystem.getUnitSize();
 
-        position.x = cellX;
-        position.y = cellY;
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
 
-        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
-        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
 
         teleporter.toX = toX;
         teleporter.toY = toY;
 
-        MovementNode node = new MovementNode(position, screenPosition);
+        MovementNode node = new MovementNode(cellPosition, screenPosition);
         node.teleporter = teleporter;
         node.size = size;
 
@@ -166,12 +165,10 @@ public class Factory {
         effect.parameter = depth;
         effect.createType = MapEffect.CreateType.EXPLOSION;
 
-        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
-        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
 
         renderable.resourceId = renderSystem.getBombResource();
-        size.x = renderSystem.getUnitSize();
-        size.y = renderSystem.getUnitSize();
 
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
@@ -224,15 +221,10 @@ public class Factory {
         CellPosition cellPosition = new CellPosition();
         Size size = new Size();
 
-        cellPosition.x = cellX;
-        cellPosition.y = cellY;
-
-        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
-        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
 
         renderable.resourceId = renderSystem.getMetalResource();
-        size.x = renderSystem.getUnitSize();
-        size.y = renderSystem.getUnitSize();
 
         collideable.height = 12;
         collideable.margin = 10;
@@ -261,16 +253,10 @@ public class Factory {
         effect.effectType = VANISH;
         effect.timeRemaining = 20;
 
-        cellPosition.x = cellX;
-        cellPosition.y = cellY;
-
-        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
-        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
 
         renderable.resourceId = renderSystem.getExplosionResource();
-
-        size.x = renderSystem.getUnitSize();
-        size.y = renderSystem.getUnitSize();
 
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
@@ -286,6 +272,72 @@ public class Factory {
         return expl_id;
     }
 
+    public int createRandomPowerup(int cellX, int cellY) {
+        PowerupPlayer powerup = new PowerupPlayer();
+
+        PowerupPlayer.Feature feature;
+
+        Random ran = new Random();
+        int ranFeature = ran.nextInt(PowerupPlayer.powerUpCount);
+
+        switch (ranFeature){
+            case 0:
+                feature = FLAME_LENGTH;
+                break;
+            case 1:
+                feature = BOMB_MAX_COUNT;
+                break;
+            default:
+                feature = FLAME_LENGTH;
+        }
+
+        powerup.addsFeature = feature;
+        powerup.amount = 1;
+
+        return createPowerup(cellX, cellY, powerup);
+    }
+
+    public int createPowerup(int cellX, int cellY, PowerupPlayer powerup){
+        int power_id = Entity.createNewEntity();
+
+        Renderable renderable = new Renderable();
+        CellPosition cellPosition = new CellPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
+        Size size = new Size();
+        Destroyable destroyable = new Destroyable();
+        destroyable.destroyOnWalk = true;
+        destroyable.hitPoints = 1;
+
+        switch(powerup.addsFeature){
+            default:
+            case FLAME_LENGTH:
+                renderable.resourceId = renderSystem.getPowerupFireResource();
+                break;
+            case BOMB_MAX_COUNT:
+                renderable.resourceId = renderSystem.getPowerupBombResource();
+                break;
+        }
+
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
+
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.renderable = renderable;
+        combatNode.destroyable = destroyable;
+
+        RenderNode renderNode = new RenderNode(size, screenPosition);
+        renderNode.renderable = renderable;
+
+        MovementNode movementNode = new MovementNode(cellPosition, screenPosition);
+        movementNode.powerupPlayer = powerup;
+
+        renderSystem.addToRender(power_id, renderNode);
+        movementSystem.addToMovement(power_id, movementNode);
+        combatSystem.addToCombat(power_id, combatNode);
+
+        return power_id;
+    }
+
     public void addPowerupToEntity(int entity_id, PowerupPlayer powerup, PowerupNode.PowerupDuration duration, int timeRemaining) {
         PowerupNode node = new PowerupNode();
 
@@ -294,5 +346,21 @@ public class Factory {
         node.timeRemaining = timeRemaining;
 
         powerupSystem.addToPowerUp(entity_id, node);
+        java.lang.System.out.println("Hello");
     }
+
+
+    public void createDefaultScreenAndCellPosition(CellPosition cellPosition, ScreenPosition screenPosition, int cellX, int cellY){
+        cellPosition.x = cellX;
+        cellPosition.y = cellY;
+
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+    }
+
+    public void createDefaultSize(Size size){
+        size.x = renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
+    }
+
 }
