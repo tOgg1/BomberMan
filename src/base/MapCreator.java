@@ -1,6 +1,8 @@
 package base;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,12 +15,12 @@ public class MapCreator {
 
     private final Factory factory;
 
-    public static int MAP_NONE = 0;
-    public static int MAP_PLAYER = 1;
-    public static int MAP_AI = 2;
-    public static int MAP_CRATE = 3;
-    public static int MAP_METAL = 4;
-    public static int MAP_TELEPORT = 5;
+    public final static int MAP_NONE = 0;
+    public final static int MAP_PLAYER = 1;
+    public final static int MAP_AI = 2;
+    public final static int MAP_CRATE = 3;
+    public final static int MAP_METAL = 4;
+    public final static int MAP_TELEPORT = 5;
 
     public MapCreator(Factory factory) {
         this.factory = factory;
@@ -30,7 +32,28 @@ public class MapCreator {
             for (int i = 0; i < map.length; i++) {
                 java.lang.System.out.print("\n");
                 for (int j = 0; j < map[i].length; j++) {
-                    java.lang.System.out.print(map[i][j]);
+                    switch(map[i][j]){
+                        default:
+                        case MAP_NONE:
+                            continue;
+                        case MAP_PLAYER:
+                            factory.createPlayer(j, i);
+                            continue;
+                        case MAP_AI:
+                            factory.createBot(j, i);
+                            continue;
+                        case MAP_CRATE:
+                            factory.createCrate(j, i);
+                            continue;
+                        case MAP_TELEPORT:
+                            int[] to = new int[2];
+                            placeRandomTeleportLocation(map, to);
+                            factory.createTeleporter(j, i, to[1], to[0]);
+                            continue;
+                        case MAP_METAL:
+                            factory.createMetal(j, i);
+                            continue;
+                    }
                 }
             }
 
@@ -38,6 +61,34 @@ public class MapCreator {
             e.printStackTrace();
             return false;
         }
+        return true;
+    }
+
+    private boolean placeRandomTeleportLocation(int[][] map, int[] randomlocation) {
+        if(map == null)
+            throw new IllegalArgumentException("Invalid argument: map is null");
+        if(map[0] == null)
+            throw new IllegalArgumentException("Invalid argument: a row is null");
+        if(randomlocation.length != 2)
+            throw new IllegalArgumentException("Invalid argument: the randomlocation array-holder is not of length 2");
+        ArrayList<int[]> availableLocations = new ArrayList<>();
+
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[0].length; j++) {
+                if(map[i][j] != 0){
+                    availableLocations.add(new int[]{i,j});
+                }
+            }
+        }
+
+        Random random = new Random();
+        random.setSeed(java.lang.System.currentTimeMillis());
+
+        int index = random.nextInt(availableLocations.size());
+
+        int[] chosen = availableLocations.get(index);
+        randomlocation[0] = chosen[0];
+        randomlocation[1] = chosen[1];
         return true;
     }
 
@@ -104,23 +155,24 @@ public class MapCreator {
             for (String s : lines) {
 
 
-                int lineNumber = Integer.parseInt(""+s.charAt(0));
+                int lineNumber = Integer.parseInt(s.split(":")[0]);
                 int index = 0;
 
-                s = s.replaceAll("^\\d:", "");
+                s = s.replaceAll("^\\d+:", "");
 
                 String lastInt = "";
-                boolean lastWasNumber = false;
+                boolean lastIsLabel = false;
 
                 for (int i = 0; i < s.length(); i++) {
 
                     if(isNumber(""+s.charAt(i))) {
                         lastInt += s.charAt(i);
-                    }else if(s.charAt(i) == ':') {
+                    } else if(s.charAt(i) == ':') {
                         int newIndex = Integer.parseInt(lastInt)-1;
                         index = newIndex;
                         lastInt = "";
-                    }else{
+                        lastIsLabel = true;
+                    } else {
                         if(!lastInt.equals("")){
                             int count = Integer.parseInt(lastInt);
 
@@ -130,15 +182,10 @@ public class MapCreator {
 
                             index += Integer.parseInt(lastInt);
                             lastInt = "";
-                            lastWasNumber = true;
-                        }else {
-                            if (!lastWasNumber) {
-                                map[lineNumber-1][index] = translateMapChar(s.charAt(i));
-                                ++index;
-                            } else {
-                                lastWasNumber = false;
-                                map[lineNumber-1][index] = translateMapChar(s.charAt(i));
-                            }
+                        } else {
+                            map[lineNumber-1][index] = translateMapChar(s.charAt(i));
+                            ++index;
+
                         }
                     }
                 }
@@ -157,7 +204,7 @@ public class MapCreator {
             return false;
 
         for (String line : lines) {
-            if(!line.matches("^[0-9]:[a-zA-Z0-9:]*")){
+            if(!line.matches("^\\d+:[a-zA-Z0-9:]*")){
                 java.lang.System.out.println("Here: " + line);
                 return false;
             }
@@ -181,11 +228,11 @@ public class MapCreator {
             return false;
         }
 
-        line = line.replaceAll("^\\d:", "");
+        line = line.replaceAll("^\\d+:", "");
 
         int index = 0;
         String lastInt = "";
-        boolean lastWasNumber = false;
+        boolean lastIsLabel = false;
 
         for (int i = 0; i < line.length(); i++) {
 
@@ -202,20 +249,15 @@ public class MapCreator {
                 if(!lastInt.equals("")){
                     index += Integer.parseInt(lastInt);
                     lastInt = "";
-                    lastWasNumber = true;
                 }else {
-                    if (!lastWasNumber) {
                         ++index;
-                    } else {
-                        lastWasNumber = false;
-                    }
                 }
             }
         }
         java.lang.System.out.println(line);
-        java.lang.System.out.println(index);
+        java.lang.System.out.println(index-1);
 
-        if(index > sizex)
+        if(index-1 > sizex)
             return false;
 
         return true;
@@ -241,7 +283,7 @@ public class MapCreator {
         int max = 0;
 
         for (String line : lines) {
-            int lineNumber = Integer.parseInt(""+line.charAt(0));
+            int lineNumber = Integer.parseInt(line.split(":")[0]);
             max = lineNumber > max ? lineNumber : max;
         }
 
@@ -252,7 +294,7 @@ public class MapCreator {
         }
 
         for (String line : lines) {
-            int lineNumber = Integer.parseInt(""+line.charAt(0))-1;
+            int lineNumber = Integer.parseInt(line.split(":")[0])-1;
             if(found[lineNumber])
                 return true;
             found[lineNumber] = true;
@@ -290,10 +332,5 @@ public class MapCreator {
         }catch(NumberFormatException e){
             return false;
         }
-    }
-
-    public static void main(String[] args) {
-        MapCreator creator = new MapCreator(Factory.getInstance());
-        creator.buildMap("res/maps/default.txt");
     }
 }

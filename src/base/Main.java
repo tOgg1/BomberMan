@@ -25,12 +25,9 @@ public class Main {
         renderSystem.addKeyListener(inputSystem);
 
         Factory factory = Factory.instantiate(renderSystem, movementSystem, inputSystem, combatSystem, aiSystem);
-        factory.createPlayer(1,1);
-        factory.createCrate(2,2);
-        factory.createCrate(3,2);
 
-        factory.createTeleporter(5,4, 10, 11);
-
+        MapCreator creator = new MapCreator(factory);
+        creator.buildMap("res/maps/default.txt");
         engine.factory = factory;
 
         engine.addSystem(renderSystem);

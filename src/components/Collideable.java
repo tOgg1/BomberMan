@@ -7,4 +7,5 @@ import base.Component;
  */
 public class Collideable extends Component {
     public int height = 0;
+    public int margin = 0;
 }

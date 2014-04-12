@@ -52,6 +52,9 @@ public class Factory {
         size.x = renderSystem.getUnitSize();
         size.y = renderSystem.getUnitSize();
 
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+
         bombLayer.damage = 1;
         bombLayer.depth = 2;
 
@@ -83,6 +86,7 @@ public class Factory {
         CellPosition cellPosition = new CellPosition();
         Size size = new Size();
 
+
         cellPosition.x = cellX;
         cellPosition.y = cellY;
 
@@ -92,13 +96,15 @@ public class Factory {
         renderable.resourceId = renderSystem.getCrateResource();
         size.x = renderSystem.getUnitSize();
         size.y = renderSystem.getUnitSize();
+
         collideable.height = 10;
+        collideable.margin = 10;
+
         destroyable.hitPoints = 1;
 
         MovementNode movnode = new MovementNode(cellPosition, screenPosition);
         movnode.collideable = collideable;
         movnode.size = size;
-
 
         RenderNode renderNode = new RenderNode();
         renderNode.pos = screenPosition;
@@ -171,5 +177,41 @@ public class Factory {
     public int createBot(int cellX, int cellY){
         int bot_id = Entity.createNewEntity();
         return bot_id;
+    }
+
+    public int createMetal(int cellX, int cellY) {
+        int metal_id = Entity.createNewEntity();
+        Renderable renderable = new Renderable();
+        Collideable collideable = new Collideable();
+        ScreenPosition screenPosition = new ScreenPosition();
+        CellPosition cellPosition = new CellPosition();
+        Size size = new Size();
+
+        cellPosition.x = cellX;
+        cellPosition.y = cellY;
+
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+
+        renderable.resourceId = renderSystem.getMetalResource();
+        size.x = renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
+
+        collideable.height = 12;
+        collideable.margin = 10;
+
+        MovementNode movnode = new MovementNode(cellPosition, screenPosition);
+        movnode.collideable = collideable;
+        movnode.size = size;
+
+        RenderNode renderNode = new RenderNode();
+        renderNode.pos = screenPosition;
+        renderNode.size = size;
+        renderNode.renderable = renderable;
+
+        renderSystem.addToRender(metal_id, renderNode);
+        movementSystem.addToMovement(metal_id, movnode);
+        return metal_id;
+
     }
 }

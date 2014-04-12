@@ -7,4 +7,13 @@ import base.Component;
  */
 public class CellPosition extends Component {
     public int x, y;
+
+
+    @Override
+    public String toString() {
+        return "CellPosition{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

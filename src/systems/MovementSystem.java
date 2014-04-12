@@ -54,7 +54,7 @@ public class MovementSystem extends base.System {
                         screenPosition.y -= moveable.speed;
                     }
 
-                    if ((screenPosition.y - size.y/2) / tileSizeY < position.y) {
+                    if ((screenPosition.y) / tileSizeY < position.y) {
                         changeCell(node, position.x, position.y - 1);
                     }
                 }
@@ -65,7 +65,7 @@ public class MovementSystem extends base.System {
                         screenPosition.y += moveable.speed;
                     }
 
-                    if ((screenPosition.y + size.y/2) / tileSizeY > position.y) {
+                    if ((screenPosition.y) / tileSizeY > position.y) {
                         changeCell(node, position.x, position.y + 1);
                     }
                 }
@@ -76,7 +76,7 @@ public class MovementSystem extends base.System {
                         screenPosition.x -= moveable.speed;
                     }
 
-                    if ((screenPosition.x - size.x/2) / tileSizeX < position.x) {
+                    if ((screenPosition.x) / tileSizeX < position.x) {
                         changeCell(node, position.x-1, position.y);
                     }
                 }
@@ -87,7 +87,7 @@ public class MovementSystem extends base.System {
                         screenPosition.x += moveable.speed;
                     }
 
-                    if ((screenPosition.x + size.x/2) / tileSizeX > position.x) {
+                    if ((screenPosition.x) / tileSizeX > position.x) {
                         changeCell(node, position.x+1, position.y);
                     }
                 }
@@ -101,14 +101,16 @@ public class MovementSystem extends base.System {
         int cellX = screenX/tileSizeX;
         int cellY = screenY/tileSizeY;
 
-        if(screenX < 0 || screenX > tileSizeX*sizex || screenY < 0 || screenY > tileSizeY*sizey){
+        // Check if outside screen
+        // +5 to add a minor margin
+        if(screenX - node.size.x/2 + 5 < 0 || screenX + node.size.x/2 - 5> tileSizeX*sizex || screenY - node.size.y/2 +5
+                < 0 || screenY + node.size.y - 5 > tileSizeY*sizey){
             System.out.println("Outside the screen");
             return false;
         }
 
         Util.Rect2 c;
         c = new Util.Rect2(screenX, screenY, node.size.x, node.size.y);
-        System.out.println(c.toString());
 
         for (Map.Entry<Integer, MovementNode> entry : nodes.entrySet()) {
             MovementNode _node = entry.getValue();
@@ -117,13 +119,21 @@ public class MovementSystem extends base.System {
             if(_node == node)
                 continue;
 
+            if(!_node.isCollideable()) {
+                continue;
+            }
+
+            // Is this node close to the node we want to check?
             if(Math.abs(_node.pos.x-cellX) < 2 && Math.abs(_node.pos.y - cellY) < 2) {
 
+                // Check rectangular collision
+                // If it is collideable
                 // Check rectangular collision
                 Util.Rect2 a, b;
                 a = new Util.Rect2(screenX, screenY, node.size.x, node.size.y);
                 // Add a 5 px margin
-                b = new Util.Rect2(_node.screenPos.x, _node.screenPos.y, _node.size.x-5, _node.size.y-5);
+                b = new Util.Rect2(_node.screenPos.x, _node.screenPos.y, _node.size.x - _node.collideable.margin,
+                        _node.size.y - _node.collideable.margin);
 
 
                 if (a.intersects(b))
@@ -161,6 +171,7 @@ public class MovementSystem extends base.System {
         }
         node.pos.x = newX;
         node.pos.y = newY;
+        System.out.println(node.pos.toString());
         return true;
     }
 

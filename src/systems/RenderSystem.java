@@ -35,6 +35,8 @@ public class RenderSystem extends base.System{
     private int crateResource;
     private int crateDamagedOneResource;
     private int crateDamagedTwoResource;
+    private int metalResource;
+
     private int explosionResource;
     private int teleporterResource;
 
@@ -68,7 +70,7 @@ public class RenderSystem extends base.System{
         frame = new JFrame();
         frame.add(gamePanel);
         frame.pack();
-        frame.setSize(800, 600);
+        frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setFocusable(true);
         frame.requestFocus();
@@ -81,6 +83,7 @@ public class RenderSystem extends base.System{
         crateResource = loadResource("res/crate.png");
         crateDamagedOneResource = loadResource("res/crate_damaged_1.png");
         crateDamagedTwoResource = loadResource("res/crate_damaged_2.png");
+        metalResource = loadResource("res/metal.png");
         teleporterResource = loadResource("res/teleporter.png");
         explosionResource = loadResource("res/explosion.png");
     }
@@ -136,6 +139,19 @@ public class RenderSystem extends base.System{
     public int getTeleporterResource() {
         return teleporterResource;
     }
+
+    public int getCrateDamagedOneResource() {
+        return crateDamagedOneResource;
+    }
+
+    public int getCrateDamagedTwoResource() {
+        return crateDamagedTwoResource;
+    }
+
+    public int getMetalResource() {
+        return metalResource;
+    }
+
 
     public int getUnitSize(){
         return SCREEN_HEIGHT/sizex;

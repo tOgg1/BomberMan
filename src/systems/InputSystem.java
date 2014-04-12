@@ -66,7 +66,6 @@ public class InputSystem extends base.System implements KeyListener {
 
         for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
             entry.getValue().moveable.curDir = moveFlag;
-            System.out.println(moveFlag);
             entry.getValue().moveable.move = true;
         }
     }
