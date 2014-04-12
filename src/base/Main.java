@@ -17,7 +17,7 @@ public class Main {
                        renderSystem.getUnitSize(), renderSystem.getUnitSize());
 
         CombatSystem combatSystem = new CombatSystem(engine);
-        PowerupSystem powerupSystem = new PowerupSystem();
+        PowerupSystem powerupSystem = new PowerupSystem(movementSystem, combatSystem);
         InputSystem inputSystem = new InputSystem();
         AISystem aiSystem = new AISystem();
         SchedulerSystem schedulerSystem = new SchedulerSystem(engine);

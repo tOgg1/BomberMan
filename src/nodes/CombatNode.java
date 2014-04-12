@@ -9,10 +9,11 @@ public class CombatNode {
 
     public Damager damager;
     public final CellPosition pos;
-    public TimedEffect effect;
+    public MapEffect effect;
     public Destroyable destroyable;
     public Renderable renderable;
     public Collideable collideable;
+    public BombLayer bombLayer;
 
     public CombatNode(CellPosition pos) {
         this.pos = pos;
@@ -33,5 +34,7 @@ public class CombatNode {
     public boolean isCollideable(){
         return collideable != null;
     }
+
+    public boolean isBombLayer() {return bombLayer != null ;}
 
 }

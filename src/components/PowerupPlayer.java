@@ -10,9 +10,10 @@ public class PowerupPlayer extends Component {
     public Feature addsFeature;
     public int amount;
 
-    enum Feature {
+    public static enum Feature {
         FLAME_LENGTH,
-        BOMB_AMOUNT,
+        BOMB_MAX_COUNT,
+        BOMB_TEMP_COUNT,
         SPEED,
         CAN_JUMP,
         CAN_PUSH

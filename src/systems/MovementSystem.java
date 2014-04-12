@@ -177,4 +177,12 @@ public class MovementSystem extends base.System {
     public void addToMovement(int entity_id, MovementNode node){
         nodes.put(entity_id, node);
     }
+
+    public boolean updateMoveable(int entity_id, int speed){
+        if(!nodes.containsKey(entity_id))
+            return false;
+
+        nodes.get(entity_id).moveable.speed = speed;
+        return true;
+    }
 }

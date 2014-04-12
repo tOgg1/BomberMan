@@ -1,13 +1,10 @@
 package base;
 
 import components.*;
-import nodes.CombatNode;
-import nodes.InputNode;
-import nodes.MovementNode;
-import nodes.RenderNode;
+import nodes.*;
 import systems.*;
 
-import static components.TimedEffect.EffectType.*;
+import static components.MapEffect.EffectType.*;
 
 /**
  * Created by tormod on 11.04.14.
@@ -55,7 +52,9 @@ public class Factory {
         screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
 
         bombLayer.damage = 1;
-        bombLayer.depth = 5;
+        bombLayer.depth = 2;
+        bombLayer.maxCount = 1;
+        bombLayer.curCount = 1;
 
         MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
         moveNode.moveable = moveable;
@@ -83,7 +82,6 @@ public class Factory {
         CellPosition cellPosition = new CellPosition();
         Size size = new Size();
 
-
         cellPosition.x = cellX;
         cellPosition.y = cellY;
 
@@ -106,8 +104,13 @@ public class Factory {
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.destroyable = destroyable;
+        combatNode.collideable = collideable;
+
         renderSystem.addToRender(crate_id, renderNode);
         movementSystem.addToMovement(crate_id, movnode);
+        combatSystem.addToCombat(crate_id, combatNode);
         return crate_id;
     }
 
@@ -153,7 +156,7 @@ public class Factory {
         cellPosition.x = cellX;
         cellPosition.y = cellY;
         Size size = new Size();
-        TimedEffect effect = new TimedEffect();
+        MapEffect effect = new MapEffect();
         Damager damager = new Damager();
 
         damager.inflictDamage = 1;
@@ -161,7 +164,7 @@ public class Factory {
         effect.timeRemaining = timeToDetonation;
         effect.effectType = SPREAD;
         effect.parameter = depth;
-        effect.createType = TimedEffect.CreateType.EXPLOSION;
+        effect.createType = MapEffect.CreateType.EXPLOSION;
 
         screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
         screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
@@ -186,17 +189,20 @@ public class Factory {
     }
 
     public int createExplosionDamager(int cellX, int cellY, int damage){
-        java.lang.System.out.println("lol");
         int exploder_id = Entity.createNewEntity();
         CellPosition position = new CellPosition();
         Damager damager = new Damager();
         damager.inflictDamage = damage;
 
-        TimedEffect effect = new TimedEffect();
+        position.x = cellX;
+        position.y = cellY;
+
+        MapEffect effect = new MapEffect();
         effect.effectType = VANISH;
         effect.timeRemaining = 1;
 
         CombatNode combatNode = new CombatNode(position);
+        combatNode.damager = damager;
 
         combatSystem.addToCombat(exploder_id, combatNode);
         schedulerSystem.addTimedEffect(exploder_id, effect);
@@ -245,13 +251,12 @@ public class Factory {
     }
 
     public int createExplosion(int cellX, int cellY){
-        java.lang.System.out.println("hellooo");
         int expl_id = Entity.createNewEntity();
         Renderable renderable = new Renderable();
         CellPosition cellPosition = new CellPosition();
         ScreenPosition screenPosition = new ScreenPosition();
         Size size = new Size();
-        TimedEffect effect = new TimedEffect();
+        MapEffect effect = new MapEffect();
 
         effect.effectType = VANISH;
         effect.timeRemaining = 20;
@@ -276,7 +281,18 @@ public class Factory {
 
         renderSystem.addToRender(expl_id, renderNode);
         combatSystem.addToCombat(expl_id, combatNode);
+        schedulerSystem.addTimedEffect(expl_id, effect);
 
         return expl_id;
+    }
+
+    public void addPowerupToEntity(int entity_id, PowerupPlayer powerup, PowerupNode.PowerupDuration duration, int timeRemaining) {
+        PowerupNode node = new PowerupNode();
+
+        node.powerup = powerup;
+        node.duration = duration;
+        node.timeRemaining = timeRemaining;
+
+        powerupSystem.addToPowerUp(entity_id, node);
     }
 }

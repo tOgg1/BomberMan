@@ -1,8 +1,9 @@
 package systems;
 
 import base.Engine;
-import components.TimedEffect;
+import components.MapEffect;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import java.util.Map;
  */
 public class SchedulerSystem extends base.System{
 
-    private HashMap<Integer, TimedEffect> timeables = new HashMap<>();
+    private HashMap<Integer, MapEffect> timeables = new HashMap<>();
     private final Engine engineRef;
 
     public SchedulerSystem(Engine engineRef) {
@@ -25,21 +26,24 @@ public class SchedulerSystem extends base.System{
 
     @Override
     public void update(float dt) {
-        for (Map.Entry<Integer, TimedEffect> entry : timeables.entrySet()) {
-            TimedEffect eff = entry.getValue();
+        ArrayList<Integer> toRemove = new ArrayList<>();
+        for (Map.Entry<Integer, MapEffect> entry : timeables.entrySet()) {
+            MapEffect eff = entry.getValue();
             --eff.timeRemaining;
 
             if(eff.timeRemaining < 0){
-                engineRef.removeEntity(entry.getKey());
+                if(eff.effectType == MapEffect.EffectType.VANISH || eff.effectType == MapEffect.EffectType.SPREAD)
+                    engineRef.removeEntity(entry.getKey());
+                else
+                    toRemove.add(entry.getKey());
             }
         }
     }
 
-    public boolean addTimedEffect(int entity_id, TimedEffect eff){
+    public boolean addTimedEffect(int entity_id, MapEffect eff){
         if(timeables.containsKey(entity_id))
             return false;
 
-        System.out.println("Added timed effect");
         timeables.put(entity_id, eff);
         return true;
     }

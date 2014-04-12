@@ -7,4 +7,13 @@ import base.Component;
  */
 public class ScreenPosition extends Component {
     public int x, y;
+
+
+    @Override
+    public String toString() {
+        return "ScreenPosition{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

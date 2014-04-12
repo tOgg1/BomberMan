@@ -1,6 +1,7 @@
 package systems;
 
 import base.Engine;
+import components.PowerupPlayer;
 import nodes.InputNode;
 
 import java.awt.event.KeyEvent;
@@ -36,9 +37,24 @@ public class InputSystem extends base.System implements KeyListener {
         if(keyMap[KeyEvent.VK_SPACE]) {
             Engine engine = Engine.getInstance();
             for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
-                if (entry.getValue().isBombLayer()) {
-                    engine.factory.createBomb(entry.getValue().cellPosition.x, entry.getValue().cellPosition.y,
-                            entry.getValue().bombLayer.damage, entry.getValue().bombLayer.spread, 40);
+
+                InputNode node = entry.getValue();
+
+                if (node.isBombLayer()) {
+                    if(node.bombLayer.curCount == 0) {
+                        continue;
+                    }
+
+                    engine.factory.createBomb(node.cellPosition.x, node.cellPosition.y,
+                                              node.bombLayer.damage, node.bombLayer.depth, 40);
+                    PowerupPlayer powerup = new PowerupPlayer();
+                    powerup.addsFeature = PowerupPlayer.Feature.BOMB_TEMP_COUNT;
+                    powerup.amount = -1;
+                    engine.factory.addPowerupToEntity(entry.getKey(), powerup);
+                    --node.bombLayer.curCount;
+
+                    // Set handled
+                    keyMap[KeyEvent.VK_SPACE] = false;
                 }
             }
         }

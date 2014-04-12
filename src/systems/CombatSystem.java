@@ -1,9 +1,10 @@
 package systems;
 
 import base.Engine;
+import components.BombLayer;
 import components.CellPosition;
+import components.MapEffect;
 import components.Renderable;
-import components.TimedEffect;
 import nodes.CombatNode;
 
 import java.util.HashMap;
@@ -52,7 +53,6 @@ public class CombatSystem extends base.System {
             if(node.isEffect()){
                 // Lets execute!
                 if(node.effect.timeRemaining == 0){
-                    System.out.println("Execution time!");
                     node.renderable.status = Renderable.Status.ACTIVE;
 
                     if(node.isDamager()){
@@ -63,7 +63,7 @@ public class CombatSystem extends base.System {
                         create(node);
                     }
 
-                    if(node.effect.effectType == TimedEffect.EffectType.VANISH){
+                    if(node.effect.effectType == MapEffect.EffectType.VANISH){
                         engine.removeEntity(entry.getKey());
                     }
                 // Lets wait and let the scheduler work with it a bit
@@ -81,13 +81,14 @@ public class CombatSystem extends base.System {
     }
 
     public void create(CombatNode node){
-        TimedEffect effect = node.effect;
+        MapEffect effect = node.effect;
 
         if(effect.effectType != null){
-            if(effect.effectType == TimedEffect.EffectType.SPREAD){
+            if(effect.effectType == MapEffect.EffectType.SPREAD){
 
-                // Create spread
+                // Create in senter
                 engine.factory.createExplosion(node.pos.x, node.pos.y);
+                engine.factory.createExplosionDamager(node.pos.x, node.pos.y, node.damager.inflictDamage);
 
                 // Propagate in all directions
                 propagateCreate(node,  1,  0);
@@ -95,8 +96,9 @@ public class CombatSystem extends base.System {
                 propagateCreate(node,  0,  1);
                 propagateCreate(node,  0, -1);
 
-            } else if(effect.effectType == TimedEffect.EffectType.SINGULAR){
+            } else if(effect.effectType == MapEffect.EffectType.SINGULAR){
                 engine.factory.createExplosion(node.pos.x, node.pos.y);
+                engine.factory.createExplosionDamager(node.pos.x, node.pos.y, node.damager.inflictDamage);
             } else {
                 return;
             }
@@ -111,12 +113,13 @@ public class CombatSystem extends base.System {
         newPos.x = node.pos.x;
         newPos.y = node.pos.y;
 
-        while(depth < 0){
+        System.out.println(depth);
+        while(depth > 0){
             depth--;
             newPos.x += dx;
             newPos.y += dy;
-
-            if(node.effect.createType == TimedEffect.CreateType.EXPLOSION){
+            System.out.println("propagating");
+            if(node.effect.createType == MapEffect.CreateType.EXPLOSION){
 
                 engine.factory.createExplosionDamager(newPos.x, newPos.y, node.damager.inflictDamage);
                 engine.factory.createExplosion(newPos.x, newPos.y);
@@ -153,17 +156,25 @@ public class CombatSystem extends base.System {
     public void doDamage(CombatNode damager){
         for (Map.Entry<Integer, CombatNode> entry : nodes.entrySet()) {
             CombatNode _node = entry.getValue();
-
-            if(_node == damager)
-                continue;
-
-            if(!_node.isDestroyable())
-                continue;
-
-            if(_node.pos.x != damager.pos.x || _node.pos.y != damager.pos.y){
+            System.out.println("Attempting to do damage");
+            if(_node == damager) {
+                //System.out.println("Hello One");
                 continue;
             }
 
+            if(!_node.isDestroyable()) {
+                //System.out.println("Hello Two");
+                continue;
+            }
+
+
+            if(_node.pos.x != damager.pos.x || _node.pos.y != damager.pos.y){
+                System.out.println(_node.pos.toString());
+                System.out.println(damager.pos.toString());
+                continue;
+            }
+
+            System.out.println("Doing damage");
             --_node.destroyable.hitPoints;
 
             if(-_node.destroyable.hitPoints <= 0) {
@@ -174,5 +185,24 @@ public class CombatSystem extends base.System {
 
     public void kill(int entity_id, CombatNode node){
         engine.removeEntity(entity_id);
+    }
+
+    public boolean updateBombLayer(int entity_id, Integer depth, Integer damage, Integer  maxCount, Integer curCount){
+        if(!nodes.containsKey(entity_id))
+            return false;
+
+        if(!nodes.get(entity_id).isBombLayer()) {
+            return false;
+        }
+
+        BombLayer bombLayer = nodes.get(entity_id).bombLayer;
+
+        bombLayer.depth += depth != null ? depth : 0;
+        bombLayer.maxCount += maxCount != null ? maxCount : 0;
+        bombLayer.curCount += curCount != null ? curCount : 0;
+        bombLayer.damage += damage != null ? damage : 0;
+
+        return true;
+
     }
 }

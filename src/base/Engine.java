@@ -13,7 +13,6 @@ public class Engine implements Runnable {
     public Factory factory;
 
     private static Engine singleton;
-
     private ArrayList<Integer> toDelete = new ArrayList<>();
 
     private Engine() {

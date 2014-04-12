@@ -5,7 +5,7 @@ import base.Component;
 /**
  * Created by tormod on 11.04.14.
  */
-public class TimedEffect extends Component {
+public class MapEffect extends Component {
     public float timeRemaining;
     public int parameter;
     public EffectType effectType;
@@ -26,5 +26,15 @@ public class TimedEffect extends Component {
 
     public boolean isCreator(){
         return createType != null;
+    }
+
+    @Override
+    public String toString() {
+        return "MapEffect{" +
+                "timeRemaining=" + timeRemaining +
+                ", parameter=" + parameter +
+                ", effectType=" + effectType +
+                ", createType=" + createType +
+                '}';
     }
 }

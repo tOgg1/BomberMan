@@ -11,7 +11,7 @@ public class RenderNode {
     public Animatable animatable;
     public final Size size;
     public final ScreenPosition pos;
-    public TimedEffect effect;
+    public MapEffect effect;
 
     public RenderNode(Size size, ScreenPosition pos) {
         this.size = size;
