@@ -26,6 +26,8 @@ public class PowerupSystem extends base.System{
     }
 
     public void addToPowerUp(int entity_id, PowerupNode node){
+        if(temps.containsKey(entity_id) || nodes.containsKey(entity_id))
+            return;
         temps.put(entity_id, node);
     }
 
@@ -43,9 +45,9 @@ public class PowerupSystem extends base.System{
 
             if(entry.getValue().duration == TEMPORARY){
                 nodes.put(entry.getKey(), entry.getValue());
-                executePowerUp(entry.getKey(), entry.getValue().powerup);
+                executePowerUp(entry.getValue());
             } else {
-                executePowerUp(entry.getKey(), entry.getValue().powerup);
+                executePowerUp(entry.getValue());
             }
         }
         temps.clear();
@@ -60,10 +62,8 @@ public class PowerupSystem extends base.System{
 
                 // Time to remove
                 if(node.timeRemaining == 0){
-                    PowerupPlayer temp = new PowerupPlayer();
-                    temp.addsFeature = entry.getValue().powerup.addsFeature;
-                    temp.amount = -entry.getValue().powerup.amount;
-                    executePowerUp(entry.getKey(), temp);
+                    node.powerup.amount = -node.powerup.amount;
+                    executePowerUp(node);
                     toRemove.add(entry.getKey());
                 }else{
                     --node.timeRemaining;
@@ -79,19 +79,18 @@ public class PowerupSystem extends base.System{
         }
     }
 
-    public void executePowerUp(int entity_id, PowerupPlayer powerup){
-        System.out.println("SUP0");
+    public void executePowerUp(PowerupNode node){
+        PowerupPlayer powerup = node.powerup;
 
         if(powerup == null)
             return;
-        System.out.println("SUP");
 
         switch(powerup.addsFeature){
             case BOMB_MAX_COUNT:
-                combatSystem.updateBombLayer(entity_id, null, null, powerup.amount, null);
+                combatSystem.updateBombLayer(node.entity_target, null, null, powerup.amount, null);
                 break;
             case BOMB_TEMP_COUNT:
-                combatSystem.updateBombLayer(entity_id, null, null, null, powerup.amount);
+                combatSystem.updateBombLayer(node.entity_target, null, null, null, powerup.amount);
                 break;
             case CAN_JUMP:
 
@@ -100,7 +99,7 @@ public class PowerupSystem extends base.System{
 
                 break;
             case FLAME_LENGTH:
-                combatSystem.updateBombLayer(entity_id, powerup.amount, null, null, null);
+                combatSystem.updateBombLayer(node.entity_target, powerup.amount, null, null, null);
                 break;
             case SPEED:
 

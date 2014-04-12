@@ -55,9 +55,11 @@ public class Factory {
         createDefaultSize(size);
 
         bombLayer.damage = 1;
-        bombLayer.depth = 2;
+        bombLayer.depth = 1;
         bombLayer.maxCount = 1;
         bombLayer.curCount = 1;
+
+        destroyable.hitPoints = 3;
 
         MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
         moveNode.moveable = moveable;
@@ -73,6 +75,7 @@ public class Factory {
         CombatNode combatNode = new CombatNode(cellPosition);
         combatNode.renderable = renderable;
         combatNode.bombLayer = bombLayer;
+        combatNode.destroyable = destroyable;
 
         combatSystem.addToCombat(player_id, combatNode);
         renderSystem.addToRender(player_id, renderNode);
@@ -211,6 +214,45 @@ public class Factory {
 
     public int createBot(int cellX, int cellY){
         int bot_id = Entity.createNewEntity();
+        AI ai = new AI();
+
+        Renderable renderable = new Renderable();
+        Moveable moveable = new Moveable();
+        Score score = new Score();
+        CellPosition cellPosition = new CellPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
+        BombLayer bombLayer = new BombLayer();
+        Size size = new Size();
+        Destroyable destroyable = new Destroyable();
+
+        renderable.resourceId = renderSystem.getUnitRedResource();
+
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
+
+        bombLayer.damage = 1;
+        bombLayer.depth = 2;
+        bombLayer.maxCount = 1;
+        bombLayer.curCount = 1;
+
+        destroyable.hitPoints = 3;
+
+        MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
+        moveNode.moveable = moveable;
+        moveNode.size = size;
+
+        RenderNode renderNode = new RenderNode(size, screenPosition);
+        renderNode.renderable = renderable;
+
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.renderable = renderable;
+        combatNode.bombLayer = bombLayer;
+        combatNode.destroyable = destroyable;
+
+        combatSystem.addToCombat(bot_id, combatNode);
+        renderSystem.addToRender(bot_id, renderNode);
+        movementSystem.addToMovement(bot_id, moveNode);
+
         return bot_id;
     }
 
@@ -237,10 +279,15 @@ public class Factory {
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.collideable = collideable;
+        combatNode.renderable = renderable;
+
         renderSystem.addToRender(metal_id, renderNode);
         movementSystem.addToMovement(metal_id, movnode);
-        return metal_id;
+        combatSystem.addToCombat(metal_id, combatNode);
 
+        return metal_id;
     }
 
     public int createExplosion(int cellX, int cellY){
@@ -339,17 +386,17 @@ public class Factory {
         return power_id;
     }
 
-    public void addPowerupToEntity(int entity_id, PowerupPlayer powerup, PowerupNode.PowerupDuration duration, int timeRemaining) {
-        PowerupNode node = new PowerupNode();
+    public int addPowerupToEntity(int entity_id, PowerupPlayer powerup, PowerupNode.PowerupDuration duration, int timeRemaining) {
+        int powerup_id = Entity.createNewEntity();
+        PowerupNode node = new PowerupNode(entity_id);
 
         node.powerup = powerup;
         node.duration = duration;
         node.timeRemaining = timeRemaining;
 
         powerupSystem.addToPowerUp(entity_id, node);
-        java.lang.System.out.println("Hello");
+        return powerup_id;
     }
-
 
     public void createDefaultScreenAndCellPosition(CellPosition cellPosition, ScreenPosition screenPosition, int cellX, int cellY){
         cellPosition.x = cellX;

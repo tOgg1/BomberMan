@@ -130,7 +130,19 @@ public class MapCreator {
                 sizey = Integer.parseInt(sizes[1]);
             }
 
+
             String[] lines = rawString.replaceAll("^s:\\d\\dx\\d\\d\\s", "").split(" ");
+
+            // Find comments
+            ArrayList<String> linesArray = new ArrayList<>();
+
+            for (String s : lines) {
+                if(!s.matches("^#.*"))
+                    linesArray.add(s);
+            }
+
+            lines = new String[linesArray.size()];
+            linesArray.toArray(lines);
 
             if(!isWellFormatted(lines, sizex, sizey)){
                 throw new IllegalArgumentException("Map found was not formatted correctly. Please see non-existing " +

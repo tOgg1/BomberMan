@@ -114,7 +114,6 @@ public class CombatSystem extends base.System {
         newPos.x = node.pos.x;
         newPos.y = node.pos.y;
 
-        System.out.println(depth);
         while(depth > 0){
             depth--;
             newPos.x += dx;
@@ -169,9 +168,10 @@ public class CombatSystem extends base.System {
                 continue;
             }
 
+
             --_node.destroyable.hitPoints;
 
-            if(-_node.destroyable.hitPoints <= 0) {
+            if(_node.destroyable.hitPoints <= 0) {
                 kill(entry.getKey(), _node);
             }
         }
@@ -190,18 +190,16 @@ public class CombatSystem extends base.System {
 
         }
         engine.removeEntity(entity_id);
-
     }
 
     public boolean updateBombLayer(int entity_id, Integer depth, Integer damage, Integer  maxCount, Integer curCount){
-        System.out.println("Hello");
+
         if(!nodes.containsKey(entity_id))
             return false;
 
         if(!nodes.get(entity_id).isBombLayer()) {
             return false;
         }
-        System.out.println("Hello");
 
         BombLayer bombLayer = nodes.get(entity_id).bombLayer;
 
@@ -218,6 +216,6 @@ public class CombatSystem extends base.System {
     }
 
     public double ranFunction(int x){
-        return 1 - Math.exp(-x);
+        return 1 - Math.exp(-0.3*x);
     }
 }
