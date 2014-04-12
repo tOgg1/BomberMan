@@ -9,7 +9,7 @@ public class Moveable extends Component {
 
     public boolean move = false;
     public int curDir = UP;
-    public int speed = 2;
+    public int speed = 5;
 
     public final static int UP = 0x00000001;
     public final static int DOWN = 0x00000002;

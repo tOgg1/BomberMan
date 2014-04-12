@@ -7,10 +7,23 @@ import base.Component;
  */
 public class TimedEffect extends Component {
     public float timeRemaining;
-    public EffectType type;
+    public int parameter;
+    public EffectType effectType;
+    public CreateType createType;
 
     public static enum EffectType {
+        NONE,
         SPREAD,
-        VANISH;
+        VANISH,
+    }
+
+    public static enum CreateType {
+        EXPLOSION,
+        POWERUP,
+        AI,
+    }
+
+    public boolean isCreator(){
+        return createType != null;
     }
 }

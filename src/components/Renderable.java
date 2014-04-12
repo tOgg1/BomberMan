@@ -6,6 +6,11 @@ package components;
 public class Renderable {
 
     public int resourceId;
-    public int status;
+    public Status status;
+    public int lifetime;
 
+    public enum Status{
+        ACTIVE,
+        INACTIVE
+    }
 }

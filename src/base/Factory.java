@@ -1,6 +1,7 @@
 package base;
 
 import components.*;
+import nodes.CombatNode;
 import nodes.InputNode;
 import nodes.MovementNode;
 import nodes.RenderNode;
@@ -66,9 +67,7 @@ public class Factory {
         inputNode.bombLayer = bombLayer;
         inputNode.moveable = moveable;
 
-        RenderNode renderNode = new RenderNode();
-        renderNode.pos = screenPosition;
-        renderNode.size = size;
+        RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
         renderSystem.addToRender(player_id, renderNode);
@@ -106,9 +105,7 @@ public class Factory {
         movnode.collideable = collideable;
         movnode.size = size;
 
-        RenderNode renderNode = new RenderNode();
-        renderNode.pos = screenPosition;
-        renderNode.size = size;
+        RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
         renderSystem.addToRender(crate_id, renderNode);
@@ -141,21 +138,27 @@ public class Factory {
         node.teleporter = teleporter;
         node.size = size;
 
-        RenderNode renderNode = new RenderNode();
+        RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
-        renderNode.pos = screenPosition;
-        renderNode.size = size;
 
         renderSystem.addToRender(teleporter_id, renderNode);
         movementSystem.addToMovement(teleporter_id, node);
         return teleporter_id;
     }
 
-    public int createBomb(int cellX, int cellY, int damage, int spread, int timeToDetonation){
+    public int createBomb(int cellX, int cellY, int damage, int depth, int timeToDetonation){
         int bomb_id = Entity.createNewEntity();
         Renderable renderable = new Renderable();
         ScreenPosition screenPosition = new ScreenPosition();
         Size size = new Size();
+        TimedEffect effect = new TimedEffect();
+        Damager damager = new Damager();
+
+        damager.inflictDamage = 1;
+
+        effect.timeRemaining = timeToDetonation;
+        effect.effectType = TimedEffect.EffectType.SPREAD;
+        effect.parameter = depth;
 
         screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
         screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
@@ -164,10 +167,8 @@ public class Factory {
         size.x = renderSystem.getUnitSize();
         size.y = renderSystem.getUnitSize();
 
-        RenderNode renderNode = new RenderNode();
+        RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
-        renderNode.size = size;
-        renderNode.pos = screenPosition;
 
         renderSystem.addToRender(bomb_id, renderNode);
 
@@ -204,14 +205,45 @@ public class Factory {
         movnode.collideable = collideable;
         movnode.size = size;
 
-        RenderNode renderNode = new RenderNode();
-        renderNode.pos = screenPosition;
-        renderNode.size = size;
+        RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.renderable = renderable;
 
         renderSystem.addToRender(metal_id, renderNode);
         movementSystem.addToMovement(metal_id, movnode);
         return metal_id;
 
+    }
+
+    public int createExplosion(int cellX, int cellY){
+        int expl_id = Entity.createNewEntity();
+        Renderable renderable = new Renderable();
+        CellPosition cellPosition = new CellPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
+        Size size = new Size();
+        TimedEffect effect = new TimedEffect();
+        effect.effectType = TimedEffect.EffectType.VANISH;
+        effect.timeRemaining = 20;
+
+        cellPosition.x = cellX;
+        cellPosition.y = cellY;
+
+        screenPosition.x = (int) (renderSystem.getUnitSize()*(cellX + 0.5));
+        screenPosition.y = (int) (renderSystem.getUnitSize()*(cellY + 0.5));
+
+        renderable.resourceId = renderSystem.getExplosionResource();
+
+        size.x = renderSystem.getUnitSize();
+        size.y = renderSystem.getUnitSize();
+
+        RenderNode renderNode = new RenderNode(size, screenPosition);
+        renderNode.renderable = renderable;
+
+        CombatNode combatNode = new CombatNode(cellPosition, renderable);
+        combatNode.effect = effect;
+
+        renderSystem.addToRender(expl_id, renderNode);
+        combatSystem.addToCombat(expl_id, combatNode);
+
+        return expl_id;
     }
 }

@@ -1,9 +1,6 @@
 package nodes;
 
-import components.Renderable;
-import components.ScreenPosition;
-import components.Size;
-import components.TimedEffect;
+import components.*;
 
 /**
  * Created by tormod on 11.04.14.
@@ -11,7 +8,21 @@ import components.TimedEffect;
 public class RenderNode {
 
     public Renderable renderable;
-    public Size size;
-    public ScreenPosition pos;
+    public Animatable animatable;
+    public final Size size;
+    public final ScreenPosition pos;
     public TimedEffect effect;
+
+    public RenderNode(Size size, ScreenPosition pos) {
+        this.size = size;
+        this.pos = pos;
+    }
+
+    public boolean isRenderable(){
+        return renderable != null;
+    }
+
+    public boolean isAnimatable(){
+        return animatable != null;
+    }
 }

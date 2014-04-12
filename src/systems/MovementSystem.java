@@ -164,8 +164,8 @@ public class MovementSystem extends base.System {
                 Teleporter tele = _node.teleporter;
                 node.pos.x = tele.toX;
                 node.pos.y = tele.toY;
-                node.screenPos.x = node.pos.x*tileSizeX;
-                node.screenPos.y = node.pos.y*tileSizeY;
+                node.screenPos.x = (node.pos.x-1)*tileSizeX;
+                node.screenPos.y = (node.pos.y-1)*tileSizeY;
                 return true;
             }
         }

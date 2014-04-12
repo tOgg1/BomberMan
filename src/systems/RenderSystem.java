@@ -36,7 +36,6 @@ public class RenderSystem extends base.System{
     private int crateDamagedOneResource;
     private int crateDamagedTwoResource;
     private int metalResource;
-
     private int explosionResource;
     private int teleporterResource;
 

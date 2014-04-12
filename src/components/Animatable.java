@@ -14,6 +14,7 @@ public class Animatable extends Component {
         DIRECTIONAL,
         SEQUENTIAL,
         RANDOM,
+        DESTROYABLE
     }
 
 }

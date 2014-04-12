@@ -38,8 +38,17 @@ public class Engine implements Runnable {
                 system.update(dt);
             }
 
+            now = java.lang.System.currentTimeMillis();
+
+            java.lang.System.out.printf("Loop time: %d nanoseconds \r", java.lang.System.currentTimeMillis()- prev);
+
             // Fill remaining time
-            while((now = java.lang.System.currentTimeMillis()) - prev < frameTime){}
+            try {
+                Thread.sleep(frameTime - (now - prev));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
 
             dt = now - prev;
         }

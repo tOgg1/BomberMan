@@ -16,7 +16,7 @@ public class Main {
         MovementSystem movementSystem = new MovementSystem(gridSize, gridSize,
                        renderSystem.getUnitSize(), renderSystem.getUnitSize());
 
-        CombatSystem combatSystem = new CombatSystem();
+        CombatSystem combatSystem = new CombatSystem(engine);
         PowerupSystem powerupSystem = new PowerupSystem();
         InputSystem inputSystem = new InputSystem();
         AISystem aiSystem = new AISystem();
