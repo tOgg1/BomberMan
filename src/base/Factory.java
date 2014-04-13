@@ -8,8 +8,7 @@ import java.util.Random;
 
 import static components.MapEffect.EffectType.SPREAD;
 import static components.MapEffect.EffectType.VANISH;
-import static components.PowerupPlayer.Feature.BOMB_MAX_COUNT;
-import static components.PowerupPlayer.Feature.FLAME_LENGTH;
+import static components.PowerupPlayer.Feature.*;
 
 /**
  * Created by tormod on 11.04.14.
@@ -40,7 +39,7 @@ public class Factory {
     public int createPlayer(int cellX, int cellY){
         int player_id = Entity.createNewEntity();
 
-        Renderable renderable = new Renderable();
+        Animatable animatable = new Animatable();
         Moveable moveable = new Moveable();
         Score score = new Score();
         CellPosition cellPosition = new CellPosition();
@@ -49,7 +48,12 @@ public class Factory {
         Size size = new Size();
         Destroyable destroyable = new Destroyable();
 
-        renderable.resourceId = renderSystem.getUnitBlueResource();
+        animatable.resources = renderSystem.getUnitPurpleResources();
+        animatable.count = animatable.resources.length;
+        animatable.type = Animatable.ANIMATE_DIRECTIONAL | Animatable.ANIMATE_SEQUENTIAL;
+        animatable.sequentialCount = 2;
+        animatable.nextSequntialAnimation = 3;
+        animatable.sequentialAnimateInterval = 3;
 
         createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
         createDefaultSize(size);
@@ -64,16 +68,17 @@ public class Factory {
         MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
         moveNode.moveable = moveable;
         moveNode.size = size;
+        moveNode.animatable = animatable;
 
         InputNode inputNode = new InputNode(cellPosition);
         inputNode.bombLayer = bombLayer;
         inputNode.moveable = moveable;
 
         RenderNode renderNode = new RenderNode(size, screenPosition);
-        renderNode.renderable = renderable;
+        renderNode.animatable = animatable;
 
         CombatNode combatNode = new CombatNode(cellPosition);
-        combatNode.renderable = renderable;
+        combatNode.animatable = animatable;
         combatNode.bombLayer = bombLayer;
         combatNode.destroyable = destroyable;
 
@@ -99,7 +104,7 @@ public class Factory {
         renderable.resourceId = renderSystem.getCrateResource();
 
         collideable.height = 10;
-        collideable.margin = 10;
+        collideable.margin = 15;
 
         destroyable.hitPoints = 1;
         destroyable.dropsPowerups = 1;
@@ -270,7 +275,7 @@ public class Factory {
         renderable.resourceId = renderSystem.getMetalResource();
 
         collideable.height = 12;
-        collideable.margin = 10;
+        collideable.margin = 15;
 
         MovementNode movnode = new MovementNode(cellPosition, screenPosition);
         movnode.collideable = collideable;
@@ -335,6 +340,12 @@ public class Factory {
             case 1:
                 feature = BOMB_MAX_COUNT;
                 break;
+            case 2:
+                feature = SPEED;
+                break;
+            case 3:
+                feature = DAMAGE;
+                break;
             default:
                 feature = FLAME_LENGTH;
         }
@@ -363,6 +374,12 @@ public class Factory {
                 break;
             case BOMB_MAX_COUNT:
                 renderable.resourceId = renderSystem.getPowerupBombResource();
+                break;
+            case SPEED:
+                renderable.resourceId = renderSystem.getPowerupSpeedResource();
+                break;
+            case DAMAGE:
+                renderable.resourceId = renderSystem.getPowerupDamageResource();
                 break;
         }
 
@@ -394,7 +411,7 @@ public class Factory {
         node.duration = duration;
         node.timeRemaining = timeRemaining;
 
-        powerupSystem.addToPowerUp(entity_id, node);
+        powerupSystem.addToPowerUp(powerup_id, node);
         return powerup_id;
     }
 

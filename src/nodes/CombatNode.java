@@ -12,6 +12,7 @@ public class CombatNode {
     public MapEffect effect;
     public Destroyable destroyable;
     public Renderable renderable;
+    public Animatable animatable;
     public Collideable collideable;
     public BombLayer bombLayer;
 
@@ -36,5 +37,9 @@ public class CombatNode {
     }
 
     public boolean isBombLayer() {return bombLayer != null ;}
+
+    public boolean isAnimateable() {return animatable != null;}
+
+    public boolean isRenderable() {return renderable != null;}
 
 }

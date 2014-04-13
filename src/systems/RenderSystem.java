@@ -1,5 +1,6 @@
 package systems;
 
+import components.Animatable;
 import components.Renderable;
 import components.ScreenPosition;
 import components.Size;
@@ -34,9 +35,10 @@ public class RenderSystem extends base.System{
 
     private int unitRedResource;
     private int unitBlueResource;
-    private int unitPurpleResource;
+    private int unitPurpleResources[];
     private int unitYellowResource;
     private int unitPinkResource;
+
     private int bombResource;
     private int crateResource;
     private int crateDamagedOneResource;
@@ -44,6 +46,12 @@ public class RenderSystem extends base.System{
     private int metalResource;
     private int explosionResource;
     private int teleporterResource;
+
+    private int powerupFireResource;
+    private int powerupBombResource;
+    private int powerupSpeedResource;
+    private int powerupDamageResource;
+
     public RenderSystem(int sizex, int sizey) {
 
         this.sizex = sizex;
@@ -54,10 +62,10 @@ public class RenderSystem extends base.System{
             public void paint(Graphics g) {
                 g.setColor(Color.DARK_GRAY);
                 g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
                 for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
                     RenderNode node = entry.getValue();
                     Renderable renderable = node.renderable;
+                    Animatable animatable = node.animatable;
                     ScreenPosition pos = node.pos;
                     Size size = node.size;
 
@@ -65,9 +73,17 @@ public class RenderSystem extends base.System{
                         throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
                     }
 
-                    g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
-                            pos.y - size.y/2, size.x, size.y, null);
+
+                    if(node.isRenderable()){
+                        g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
+                                pos.y - size.y/2, size.x, size.y, null);
+                    } else if(node.isAnimatable()){
+                        --animatable.nextSequntialAnimation;
+                        g.drawImage(resources.get(animatable.resources[animatable.status]), pos.x - size.x/2,
+                                pos.y - size.y/2, size.x, size.y, null);
+                    }
                 }
+
             }
         };
 
@@ -82,25 +98,45 @@ public class RenderSystem extends base.System{
         frame.setResizable(false);
 
         /* Load assets */
-        bombResource = loadResource("res/bomb.png");
-        crateResource = loadResource("res/crate.png");
-        crateDamagedOneResource = loadResource("res/crate_damaged_1.png");
-        crateDamagedTwoResource = loadResource("res/crate_damaged_2.png");
-        metalResource = loadResource("res/metal.png");
-        teleporterResource = loadResource("res/teleporter.png");
-        explosionResource = loadResource("res/explosion.png");
-        powerupBombResource = loadResource("res/powerup_bomb.png");
-        powerupFireResource = loadResource("res/powerup_fire.png");
-        unitRedResource = loadResource("res/unit_red.png");
-        unitBlueResource = loadResource("res/unit_blue.png");
-        unitPurpleResource = loadResource("res/unit_purple.png");
-        unitYellowResource = loadResource("res/unit_yellow.png");
-        unitPinkResource = loadResource("res/unit_pink.png");
+        loadUnitResources();
+        loadObjects();
+        loadPowerups();
+
     }
 
-    private int powerupFireResource;
+    public void loadPowerups(){
+        powerupBombResource = loadResource("res/powerup/powerup_bomb.png");
+        powerupFireResource = loadResource("res/powerup/powerup_fire.png");
+        powerupSpeedResource = loadResource("res/powerup/powerup_speed.png");
+        powerupDamageResource = loadResource("res/powerup/powerup_damage.png");
+    }
 
-    private int powerupBombResource;
+    public void loadObjects(){
+        bombResource = loadResource("res/object/bomb.png");
+        crateResource = loadResource("res/object/crate.png");
+        crateDamagedOneResource = loadResource("res/object/crate_damaged_1.png");
+        crateDamagedTwoResource = loadResource("res/object/crate_damaged_2.png");
+        metalResource = loadResource("res/object/metal.png");
+        teleporterResource = loadResource("res/object/teleporter.png");
+        explosionResource = loadResource("res/object/explosion.png");
+    }
+
+    public void loadUnitResources(){
+        unitRedResource = loadResource("res/unit/unit_red.png");
+        unitBlueResource = loadResource("res/unit/unit_blue.png");
+        unitYellowResource = loadResource("res/unit/unit_yellow.png");
+        unitPinkResource = loadResource("res/unit/unit_pink.png");
+
+        unitPurpleResources = new int[8];
+        unitPurpleResources[0] = loadResource("res/unit/unit_purple_up_1.png");
+        unitPurpleResources[1] = loadResource("res/unit/unit_purple_up_2.png");
+        unitPurpleResources[2] = loadResource("res/unit/unit_purple_down_1.png");
+        unitPurpleResources[3] = loadResource("res/unit/unit_purple_down_2.png");
+        unitPurpleResources[4] = loadResource("res/unit/unit_purple_right_1.png");
+        unitPurpleResources[5] = loadResource("res/unit/unit_purple_right_2.png");
+        unitPurpleResources[6] = loadResource("res/unit/unit_purple_left_1.png");
+        unitPurpleResources[7] = loadResource("res/unit/unit_purple_left_2.png");
+    }
 
     /* Render */
     @Override
@@ -152,8 +188,8 @@ public class RenderSystem extends base.System{
         return unitBlueResource;
     }
 
-    public int getUnitPurpleResource() {
-        return unitPurpleResource;
+    public int[] getUnitPurpleResources() {
+        return unitPurpleResources;
     }
 
     public int getUnitYellowResource() {
@@ -194,6 +230,14 @@ public class RenderSystem extends base.System{
 
     public int getPowerupBombResource() {
         return powerupBombResource;
+    }
+
+    public int getPowerupSpeedResource() {
+        return powerupSpeedResource;
+    }
+
+    public int getPowerupDamageResource() {
+        return powerupDamageResource;
     }
 
     public int getUnitSize(){

@@ -36,7 +36,7 @@ public class Main {
         factory.movementSystem = movementSystem;
 
         MapCreator creator = new MapCreator(factory);
-        creator.buildMap("res/maps/default.txt");
+        creator.buildMap("res/maps/cross.txt");
 
         engine.addSystem(renderSystem);
         engine.addSystem(movementSystem);

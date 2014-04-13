@@ -102,8 +102,10 @@ public class PowerupSystem extends base.System{
                 combatSystem.updateBombLayer(node.entity_target, powerup.amount, null, null, null);
                 break;
             case SPEED:
-
+                movementSystem.updateMoveable(node.entity_target, powerup.amount);
                 break;
+            case DAMAGE:
+                combatSystem.updateBombLayer(node.entity_target, null, powerup.amount, null, null);
 
         }
     }

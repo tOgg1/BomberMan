@@ -78,7 +78,6 @@ public class CombatSystem extends base.System {
                 continue;
             }
         }
-
     }
 
     public void create(CombatNode node){
@@ -153,6 +152,8 @@ public class CombatSystem extends base.System {
     }
 
     public void doDamage(CombatNode damager){
+        if(!damager.isDamager())
+            return;
         for (Map.Entry<Integer, CombatNode> entry : nodes.entrySet()) {
             CombatNode _node = entry.getValue();
             if(_node == damager) {
@@ -163,13 +164,11 @@ public class CombatSystem extends base.System {
                 continue;
             }
 
-
             if(_node.pos.x != damager.pos.x || _node.pos.y != damager.pos.y){
                 continue;
             }
 
-
-            --_node.destroyable.hitPoints;
+            _node.destroyable.hitPoints -= damager.damager.inflictDamage;
 
             if(_node.destroyable.hitPoints <= 0) {
                 kill(entry.getKey(), _node);
@@ -203,11 +202,14 @@ public class CombatSystem extends base.System {
 
         BombLayer bombLayer = nodes.get(entity_id).bombLayer;
 
+        System.out.println(bombLayer);
         bombLayer.depth += depth != null ? depth : 0;
         bombLayer.maxCount += maxCount != null ? maxCount : 0;
         bombLayer.curCount += curCount != null ? curCount : 0;
         bombLayer.curCount += maxCount != null ? maxCount : 0;
         bombLayer.damage += damage != null ? damage : 0;
+        System.out.println(bombLayer);
+
 
         if(bombLayer.curCount > bombLayer.maxCount)
             bombLayer.curCount = bombLayer.maxCount;

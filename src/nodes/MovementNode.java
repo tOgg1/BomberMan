@@ -11,6 +11,7 @@ public class MovementNode {
     public Moveable moveable;
     public Size size;
     public PowerupPlayer powerupPlayer;
+    public Animatable animatable;
     public final CellPosition pos;
     public final ScreenPosition screenPos;
 
@@ -33,5 +34,9 @@ public class MovementNode {
 
     public boolean isPowerup(){
         return powerupPlayer != null;
+    }
+
+    public boolean isAnimatable(){
+        return animatable != null;
     }
 }

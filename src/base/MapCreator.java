@@ -110,11 +110,11 @@ public class MapCreator {
 
             // Parse the file
 
-            if(!rawString.matches("^s:\\d\\dx\\d\\d.*")){
+            if(!rawString.matches("^s:\\s*\\d\\dx\\d\\d.*")){
                 throw new IllegalArgumentException("File header (e.g. s:16x16) is missing or malformatted");
             }
 
-            Pattern pattern = Pattern.compile("^s:\\d\\dx\\d\\d");
+            Pattern pattern = Pattern.compile("^s:\\s*\\d\\dx\\d\\d");
 
             Matcher matcher = pattern.matcher(rawString);
 
@@ -130,15 +130,15 @@ public class MapCreator {
                 sizey = Integer.parseInt(sizes[1]);
             }
 
-
             String[] lines = rawString.replaceAll("^s:\\d\\dx\\d\\d\\s", "").split(" ");
 
             // Find comments
             ArrayList<String> linesArray = new ArrayList<>();
 
             for (String s : lines) {
-                if(!s.matches("^#.*"))
+                if(!s.matches("^#.*")) {
                     linesArray.add(s);
+                }
             }
 
             lines = new String[linesArray.size()];
@@ -160,7 +160,6 @@ public class MapCreator {
 
             // Fill map
             for (String s : lines) {
-
 
                 int lineNumber = Integer.parseInt(s.split(":")[0]);
                 int index = 0;
@@ -192,14 +191,13 @@ public class MapCreator {
                         } else {
                             map[lineNumber-1][index] = translateMapChar(s.charAt(i));
                             ++index;
-
                         }
                     }
                 }
             }
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("File not found: " + path);
-        } catch(IOException e){
+        } catch(IOException e) {
             throw new RuntimeException("Something went wrong while reading the file: " + e.getMessage());
         }
         return map;
@@ -227,8 +225,8 @@ public class MapCreator {
         return true;
     }
 
-    public boolean columnIsWellFormatted(String line, int sizex){
-        if(hasColumnDuplicates(line)){
+    public boolean columnIsWellFormatted(String line, int sizex) {
+        if(hasColumnDuplicates(line)) {
             return false;
         }
 
@@ -242,18 +240,18 @@ public class MapCreator {
 
             if(isNumber(""+line.charAt(i))) {
                 lastInt += line.charAt(i);
-            }else if(line.charAt(i) == ':') {
+            } else if(line.charAt(i) == ':') {
                 int newIndex = Integer.parseInt(lastInt);
                 if(newIndex < index){
                     return false;
                 }
                 index = newIndex;
                 lastInt = "";
-            }else{
+            } else {
                 if(!lastInt.equals("")){
                     index += Integer.parseInt(lastInt);
                     lastInt = "";
-                }else {
+                } else {
                         ++index;
                 }
             }
@@ -306,6 +304,7 @@ public class MapCreator {
     }
 
     public int translateMapChar(char c){
+        c = Character.toLowerCase(c);
         switch(c){
             default:
             case 'b':
@@ -320,6 +319,18 @@ public class MapCreator {
                 return MAP_AI;
             case 'm':
                 return MAP_METAL;
+            case 'r':
+                int random = Engine.getRandom().nextInt(100);
+
+                if(random < 1) {
+                    return MAP_TELEPORT;
+                } else if(random < 20) {
+                    return MAP_NONE;
+                } else if(random < 35) {
+                    return MAP_METAL;
+                } else {
+                    return MAP_CRATE;
+                }
         }
     }
 

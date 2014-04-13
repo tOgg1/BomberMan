@@ -1,6 +1,7 @@
 package base;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by tormod on 11.04.14.
@@ -16,6 +17,17 @@ public class Engine implements Runnable {
 
     private Engine() {
         factory = Factory.getInstance();
+    }
+
+    private static Random random;
+
+    static{
+        random = new Random();
+        random.setSeed(java.lang.System.currentTimeMillis());
+    }
+
+    public static Random getRandom(){
+        return random;
     }
 
     public static Engine getInstance(){

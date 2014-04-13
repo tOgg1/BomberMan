@@ -50,6 +50,16 @@ public class MovementSystem extends base.System {
 
             if(moveable.move){
 
+                if(node.isAnimatable()){
+                    int dir = convertDir(moveable.curDir);
+                    node.animatable.status = (node.animatable.status & 0x00000001) | (dir << 1);
+
+                    if(node.animatable.nextSequntialAnimation <= 0){
+                        node.animatable.status ^= 0x00000001;
+                        node.animatable.nextSequntialAnimation = node.animatable.sequentialAnimateInterval;
+                    }
+                }
+
                 if((moveable.curDir & UP) > 0) {
 
                     if(canMoveTo(node, screenPosition.x, screenPosition.y-moveable.speed)){
@@ -107,7 +117,6 @@ public class MovementSystem extends base.System {
         // +5 to add a minor margin
         if(screenX - node.size.x/2 + 5 < 0 || screenX + node.size.x/2 - 5> tileSizeX*sizex || screenY - node.size.y/2 +5
                 < 0 || screenY + node.size.y - 5 > tileSizeY*sizey){
-            System.out.println("Outside the screen");
             return false;
         }
 
@@ -190,7 +199,19 @@ public class MovementSystem extends base.System {
         if(!nodes.containsKey(entity_id))
             return false;
 
-        nodes.get(entity_id).moveable.speed = speed;
+        nodes.get(entity_id).moveable.speed += speed;
         return true;
+    }
+
+    public int convertDir(int flag){
+        if((flag & Moveable.UP) > 0) {
+            return 0;
+        } else if((flag & Moveable.DOWN) > 0) {
+            return 1;
+        } else if((flag & Moveable.RIGHT) > 0) {
+            return 2;
+        } else {
+            return 3;
+        }
     }
 }
