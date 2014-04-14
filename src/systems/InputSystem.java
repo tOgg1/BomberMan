@@ -38,11 +38,6 @@ public class InputSystem extends base.System implements KeyListener {
     @Override
     public void update(float dt) {
 
-        if(forwardEvents){
-            forwardTo.handleEvents(keyMap);
-            return;
-        }
-
         // A bomb shalt be layeth upon thou
         if(keyMap[KeyEvent.VK_SPACE]) {
             Engine engine = Engine.getInstance();

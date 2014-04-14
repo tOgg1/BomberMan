@@ -1,17 +1,11 @@
 package net;
 
-import base.Engine;
-import nodes.InputNode;
-import nodes.NetworkNode;
-
-import java.awt.event.KeyEvent;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static components.Moveable.*;
 import static net.Util.*;
 
 /**
@@ -93,6 +87,6 @@ public class Client extends base.System{
 
     public static void main(String[] args) {
         Client client = new Client();
-        client.add
+
     }
 }
