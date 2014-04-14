@@ -2,6 +2,7 @@ package systems;
 
 import base.Engine;
 import components.PowerupPlayer;
+import net.Client;
 import nodes.InputNode;
 import nodes.PowerupNode;
 
@@ -21,6 +22,9 @@ public class InputSystem extends base.System implements KeyListener {
 
     private boolean[] keyMap = new boolean[0xFFF];
 
+    public boolean forwardEvents = false;
+    public Client forwardTo;
+
     @Override
     public void removeEntity(int id) {
         inputtables.remove(id);
@@ -33,6 +37,11 @@ public class InputSystem extends base.System implements KeyListener {
     // Do nothing as of now
     @Override
     public void update(float dt) {
+
+        if(forwardEvents){
+            forwardTo.update(keyMap);
+            return;
+        }
 
         // A bomb shalt be layeth upon thou
         if(keyMap[KeyEvent.VK_SPACE]) {
