@@ -1,15 +1,13 @@
 package nodes;
 
-import components.Moveable;
-
-import java.util.ArrayList;
-import java.util.Map;
+import components.CellPosition;
 
 /**
  * Created by tormod on 13.04.14.
  */
-public class NetworkNode {
+public class NetworkNode extends InputNode {
 
-    public ArrayList<Integer> toBeRemoved;
-    public Map<Integer, Moveable> newPositions;
+    public NetworkNode(CellPosition cellPosition) {
+        super(cellPosition);
+    }
 }

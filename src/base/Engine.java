@@ -7,7 +7,12 @@ import java.util.Random;
  * Created by tormod on 11.04.14.
  */
 public class Engine implements Runnable {
-    private ArrayList<System> systems = new ArrayList<System>();
+    private ArrayList<System> systems = new ArrayList<>();
+
+    private ArrayList<System> logicSystems = new ArrayList<>();
+    private ArrayList<System> prerenderSystems = new ArrayList<>();
+    private ArrayList<System> renderSystems = new ArrayList<>();
+    private ArrayList<System> postRenderSystems = new ArrayList<>();
 
     private long frameTime = 1000/24;
     public Factory factory;
@@ -54,8 +59,20 @@ public class Engine implements Runnable {
 
             prev = java.lang.System.currentTimeMillis();
 
-            for (System system : systems) {
-                system.update(dt);
+            for (System logicSystem : logicSystems) {
+                logicSystem.update(dt);
+            }
+
+            for (System prerenderSystem : prerenderSystems) {
+                prerenderSystem.update(dt);
+            }
+
+            for (System renderSystem : renderSystems) {
+                renderSystem.update(dt);
+            }
+
+            for (System postRenderSystem : postRenderSystems) {
+                postRenderSystem.update(dt);
             }
 
             now = java.lang.System.currentTimeMillis();
@@ -78,11 +95,31 @@ public class Engine implements Runnable {
         frameTime = fps;
     }
 
-    public void addSystem(System system){
+    public void addSystem(System system, Property property){
+        switch(property){
+            case LOGIC:
+                logicSystems.add(system);
+                break;
+            case PRERENDER:
+                prerenderSystems.add(system);
+                break;
+            case RENDER:
+                renderSystems.add(system);
+                break;
+            case POSTRENDER:
+                postRenderSystems.add(system);
+        }
         systems.add(system);
     }
 
     public void removeEntity(int id){
         toDelete.add(id);
+    }
+
+    public static enum Property{
+        LOGIC,
+        PRERENDER,
+        RENDER,
+        POSTRENDER
     }
 }

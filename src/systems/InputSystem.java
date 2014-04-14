@@ -39,7 +39,7 @@ public class InputSystem extends base.System implements KeyListener {
     public void update(float dt) {
 
         if(forwardEvents){
-            forwardTo.update(keyMap);
+            forwardTo.handleEvents(keyMap);
             return;
         }
 

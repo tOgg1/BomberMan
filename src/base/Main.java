@@ -1,6 +1,11 @@
 package base;
 
+import net.Client;
 import systems.*;
+
+import static base.Engine.Property.LOGIC;
+import static base.Engine.Property.PRERENDER;
+import static base.Engine.Property.RENDER;
 
 /**
  * Created by tormod on 11.04.14.
@@ -21,6 +26,7 @@ public class Main {
         InputSystem inputSystem = new InputSystem();
         AISystem aiSystem = new AISystem();
         SchedulerSystem schedulerSystem = new SchedulerSystem(engine);
+        Client client = new Client();
 
         renderSystem.addKeyListener(inputSystem);
 
@@ -38,13 +44,14 @@ public class Main {
         MapCreator creator = new MapCreator(factory);
         creator.buildMap("res/maps/cross.txt");
 
-        engine.addSystem(renderSystem);
-        engine.addSystem(movementSystem);
-        engine.addSystem(combatSystem);
-        engine.addSystem(inputSystem);
-        engine.addSystem(aiSystem);
-        engine.addSystem(schedulerSystem);
-        engine.addSystem(powerupSystem);
+        engine.addSystem(movementSystem, LOGIC);
+        engine.addSystem(combatSystem, LOGIC);
+        engine.addSystem(inputSystem, LOGIC);
+        engine.addSystem(aiSystem, LOGIC);
+        engine.addSystem(schedulerSystem, LOGIC);
+        engine.addSystem(powerupSystem, LOGIC);
+        engine.addSystem(renderSystem, RENDER);
+        engine.addSystem(client, PRERENDER);
 
         engine.run();
     }

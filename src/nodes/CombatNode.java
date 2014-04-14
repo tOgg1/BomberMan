@@ -15,6 +15,7 @@ public class CombatNode {
     public Animatable animatable;
     public Collideable collideable;
     public BombLayer bombLayer;
+    public Defeatable defeatable;
 
     public CombatNode(CellPosition pos) {
         this.pos = pos;
@@ -41,5 +42,7 @@ public class CombatNode {
     public boolean isAnimateable() {return animatable != null;}
 
     public boolean isRenderable() {return renderable != null;}
+
+    public boolean isDefeatable() {return defeatable != null;}
 
 }
