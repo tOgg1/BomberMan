@@ -62,25 +62,26 @@ public class RenderSystem extends base.System{
             public void paint(Graphics g) {
                 g.setColor(Color.DARK_GRAY);
                 g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-                for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
-                    RenderNode node = entry.getValue();
-                    Renderable renderable = node.renderable;
-                    Animatable animatable = node.animatable;
-                    ScreenPosition pos = node.pos;
-                    Size size = node.size;
+                synchronized (nodes){
+                    for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
+                        RenderNode node = entry.getValue();
+                        Renderable renderable = node.renderable;
+                        Animatable animatable = node.animatable;
+                        ScreenPosition pos = node.pos;
+                        Size size = node.size;
 
-                    if(pos == null) {
-                        throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
-                    }
+                        if(pos == null) {
+                            throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
+                        }
 
-
-                    if(node.isRenderable()){
-                        g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
-                                pos.y - size.y/2, size.x, size.y, null);
-                    } else if(node.isAnimatable()){
-                        --animatable.nextSequntialAnimation;
-                        g.drawImage(resources.get(animatable.resources[animatable.status]), pos.x - size.x/2,
-                                pos.y - size.y/2, size.x, size.y, null);
+                        if(node.isRenderable()){
+                            g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
+                                    pos.y - size.y/2, size.x, size.y, null);
+                        } else if(node.isAnimatable()){
+                            --animatable.nextSequntialAnimation;
+                            g.drawImage(resources.get(animatable.resources[animatable.status]), pos.x - size.x/2,
+                                    pos.y - size.y/2, size.x, size.y, null);
+                        }
                     }
                 }
 
@@ -143,8 +144,10 @@ public class RenderSystem extends base.System{
     @Override
     public void update(float dt) {
 
-        for (Map.Entry<Integer, RenderNode> entry : temps.entrySet()) {
-            nodes.put(entry.getKey(), entry.getValue());
+        synchronized (nodes){
+            for (Map.Entry<Integer, RenderNode> entry : temps.entrySet()) {
+                nodes.put(entry.getKey(), entry.getValue());
+            }
         }
 
         temps.clear();

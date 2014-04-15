@@ -58,6 +58,7 @@ public class Client extends base.System{
     }
 
     private void acceptUpdatedMoveable(int entity, int dir){
+
         if(!nodes.containsKey(entity)){
             throw new RuntimeException("Entity did not exist");
         }
@@ -68,7 +69,6 @@ public class Client extends base.System{
 
         nodes.get(entity).moveable.move = true;
         nodes.get(entity).moveable.curDir = dir;
-
     }
 
     @Override
@@ -76,8 +76,9 @@ public class Client extends base.System{
         for (Map.Entry<Integer, NetworkNode> nodeEntry : temps.entrySet()) {
             nodes.put(nodeEntry.getKey(), nodeEntry.getValue());
         }
+        temps.clear();
 
-        if(!updatedMoveables.isEmpty() && !droppedBombs.isEmpty()){
+        if(!updatedMoveables.isEmpty() || !droppedBombs.isEmpty()){
             try {
                 // Send info about next frame
                 //
@@ -113,23 +114,21 @@ public class Client extends base.System{
                 output.write(END_CLIENT_TRANSFER);
                 output.flush();
             }catch(Exception e){
+                e.printStackTrace();
                 return;
             }
         }
 
+        clearAllUpdated();
 
-        // Wait for information
+        // Wait for at most 1 ms information
         //
-        try {
-            System.out.println(input.ready());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         try {
             if(!input.ready()){
                 return;
             }
         } catch (IOException e) {
+            e.printStackTrace();
             return;
         }
         try {
@@ -141,16 +140,14 @@ public class Client extends base.System{
 
                 if(content == START_SERVER_TRANSFER){
                     lastFlag = START_SERVER_TRANSFER;
-                    System.out.println("Transfer started");
                 }else if(lastFlag == CONTENT_LENGTH){
-                    System.out.println("Got content length");
                     contentLength = content;
 
                     data = new int[contentLength];
                     for (int i = 0; i < contentLength; i++) {
                         data[i] = input.read();
                     }
-
+                    lastFlag = 0;
                     handleData(data);
                     continue;
                 }else if(content == END_SERVER_TRANSFER){
@@ -162,40 +159,37 @@ public class Client extends base.System{
         } catch (IOException e) {
             throw new RuntimeException("Something went wrong while reading from stream");
         }
-        System.out.println("Message-transferring completed");
+    }
+
+    private void clearAllUpdated(){
+        updatedMoveables.clear();
+        droppedBombs.clear();
     }
 
     public void handleData(int[] data){
-        System.out.println("Handling data");
         if(data.length == 0){
-            System.out.println("Data contains nothing");
             return;
         }
         for (int i = 0; i < data.length; i++) {
             if(data[i] == START_UPDATE_MOVEABLE){
-                System.out.println("Got update moveable");
-                for (int j = i; j < data.length; j++) {
+                for (int j = i+1; j < data.length; j++) {
                     if(data[j] == END_UPDATE_MOVEABLE){
                         int length = j - i;
                         if(length != 3){
-                            throw new RuntimeException("Invalid formatted data. Update moveable data not correct");
-                        }else{
-                            acceptUpdatedMoveable(data[i], data[i + 1]);
+                            throw new RuntimeException("Invalid formatted data. Update moveable data not correct: " + length);
+                        } else {
+                            acceptUpdatedMoveable(data[j-2], data[j-1]);
                         }
                     }
                 }
             }else if(data[i] == START_DROP_BOMB){
-                System.out.println("Got drop bomb");
-                for (int j = i; j < data.length; j++) {
-                    System.out.println("Finding end");
+                for (int j = i+1; j < data.length; j++) {
                     if(data[j] == END_DROP_BOMB){
-                        System.out.println("Found end");
                         int length = j - i;
                         if(length != 5){
                             throw new RuntimeException("Invalid formatted data. Drop bomb data not correct: " + length);
                         }else{
-                            System.out.println("Adding bomb");
-                            acceptDroppedBomb(data[i], data[i + 1], data[i + 2], data[i + 3]);
+                            acceptDroppedBomb(data[j-4], data[j-3], data[j-2], data[j-1]);
                         }
                     }
                 }

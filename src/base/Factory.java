@@ -85,6 +85,8 @@ public class Factory {
         combatNode.destroyable = destroyable;
 
         NetworkNode networkNode = new NetworkNode(cellPosition);
+        networkNode.bombLayer = bombLayer;
+        networkNode.moveable = moveable;
 
         addToCombatSystem(player_id, combatNode);
         addToRenderSystem(player_id, renderNode);

@@ -55,7 +55,6 @@ public class InputSystem extends base.System implements KeyListener {
                         powerup.amount = -1;
                         engine.factory.addPowerupToEntity(entry.getKey(), powerup, PowerupNode.PowerupDuration.TEMPORARY, 40);
 
-
                         forwardTo.addDroppedBomb(new int[]{node.cellPosition.x, node.cellPosition.y, node.bombLayer.damage, node.bombLayer.depth});
                         // Set handled
                         keyMap[KeyEvent.VK_SPACE] = false;
