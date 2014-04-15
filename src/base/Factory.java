@@ -1,6 +1,7 @@
 package base;
 
 import components.*;
+import net.Client;
 import nodes.*;
 import systems.*;
 
@@ -23,6 +24,7 @@ public class Factory {
     public SchedulerSystem schedulerSystem;
     public MapSystem mapSystem;
     public PowerupSystem powerupSystem;
+    public Client client;
 
     private static Factory singleton;
 
@@ -82,10 +84,13 @@ public class Factory {
         combatNode.bombLayer = bombLayer;
         combatNode.destroyable = destroyable;
 
-        combatSystem.addToCombat(player_id, combatNode);
-        renderSystem.addToRender(player_id, renderNode);
-        movementSystem.addToMovement(player_id, moveNode);
-        inputSystem.addToInput(player_id, inputNode);
+        NetworkNode networkNode = new NetworkNode(cellPosition);
+
+        addToCombatSystem(player_id, combatNode);
+        addToRenderSystem(player_id, renderNode);
+        addToMovementSystem(player_id, moveNode);
+        addToClient(player_id, networkNode);
+        addToInputSystem(player_id, inputNode);
         return player_id;
     }
 
@@ -138,7 +143,6 @@ public class Factory {
 
         createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
         createDefaultSize(size);
-
 
         teleporter.toX = toX;
         teleporter.toY = toY;
@@ -426,6 +430,44 @@ public class Factory {
     public void createDefaultSize(Size size){
         size.x = renderSystem.getUnitSize();
         size.y = renderSystem.getUnitSize();
+    }
+
+    private void addToRenderSystem(int entity_id, RenderNode node){
+        if(renderSystem != null){
+            renderSystem.addToRender(entity_id, node);
+        }
+    }
+    private void addToCombatSystem(int entity_id, CombatNode node){
+        if(combatSystem != null){
+            combatSystem.addToCombat(entity_id, node);
+        }
+    }
+    private void addToMovementSystem(int entity_id, MovementNode node){
+        if(movementSystem != null){
+            movementSystem.addToMovement(entity_id, node);
+        }
+    }
+    private void addToInputSystem(int entity_id, InputNode node){
+        if(inputSystem != null){
+            inputSystem.addToInput(entity_id, node);
+        }
+    }
+    private void addToPowerupSystem(int entity_id, PowerupNode node){
+        if(powerupSystem != null){
+            powerupSystem.addToPowerUp(entity_id, node);
+        }
+    }
+
+    private void addToClient(int entity_id, NetworkNode node){
+        if(client != null){
+            client.addToClient(entity_id, node);
+        }
+    }
+
+    private void addToSchedulerSystem(int entity_id, MapEffect effect){
+        if(schedulerSystem != null){
+            schedulerSystem.addTimedEffect(entity_id, effect);
+        }
     }
 
 }

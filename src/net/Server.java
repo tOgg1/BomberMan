@@ -1,8 +1,6 @@
 package net;
 
-import components.BombLayer;
 import components.Defeatable;
-import components.Moveable;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -22,8 +20,8 @@ public class Server {
     private EventThread eventThread;
     private int port = 13337;
 
-    private HashMap<Integer, Moveable> updatedMoveables = new HashMap<>();
-    private HashMap<Integer, BombLayer> addedBombs = new HashMap<>();
+    private HashMap<Integer, Integer> updatedMoveables = new HashMap<>();
+    private ArrayList<Integer[]> addedBombs = new ArrayList<>();
     private HashMap<Integer, Defeatable> defeatables = new HashMap<>();
 
     public Server() {
@@ -54,11 +52,12 @@ public class Server {
     }
 
     public void updateMoveable(int entity_id, int direction){
-
+        updatedMoveables.put(entity_id, direction);
     }
 
     public void addBomb(int x, int y, int damage, int spread){
-
+        Integer[] bomb = new Integer[]{x,y,damage,spread};
+        addedBombs.add(bomb);
     }
 
 
@@ -98,13 +97,11 @@ public class Server {
                             outputs.remove(integer);
                         }
 
-                        int content;
-
-
-                        // Get info
+                        // Get input
                         try{
                             for (BufferedReader input : inputs.values()) {
 
+                                int content;
                                 int lastFlag = 0;
                                 int contentLength = 0;
                                 int[] data;
@@ -114,11 +111,14 @@ public class Server {
                                         lastFlag = START_CLIENT_TRANSFER;
                                         System.out.println("Transfer started");
                                     }else if(lastFlag == CONTENT_LENGTH){
+                                        System.out.println("Got content length");
                                         contentLength = content;
+
                                         data = new int[contentLength];
                                         for (int i = 0; i < contentLength; i++) {
                                             data[i] = input.read();
                                         }
+
                                         handleData(data);
                                         continue;
                                     }else if(content == END_CLIENT_TRANSFER){
@@ -129,53 +129,95 @@ public class Server {
                                 }
                             }
                         }catch(RuntimeException f){
-
+                            f.printStackTrace();
                         }
 
+                        //Prepare message to write
+                        ArrayList<Integer> out = new ArrayList<>();
 
-                        // Send new frame
+                        for (Map.Entry<Integer, Integer> entry : updatedMoveables.entrySet()) {
+                            out.add(START_UPDATE_MOVEABLE);
+                            out.add(entry.getKey());
+                            out.add(entry.getValue());
+                            out.add(END_UPDATE_MOVEABLE);
+                        }
+
+                        for (Integer[] addedBomb : addedBombs) {
+                            out.add(START_DROP_BOMB);
+                            out.add(addedBomb[0]);
+                            out.add(addedBomb[1]);
+                            out.add(addedBomb[2]);
+                            out.add(addedBomb[3]);
+                            out.add(END_DROP_BOMB);
+                        }
+
+                        //Send outpu
+                        for (BufferedWriter output : outputs.values()) {
+                            output.write(START_SERVER_TRANSFER);
+                            output.write(CONTENT_LENGTH);
+                            output.write(out.size());
+
+                            for (Integer integer : out) {
+                                output.write(integer);
+                            }
+                            System.out.println("Transffering back");
+                            output.write(END_SERVER_TRANSFER);
+                            output.flush();
+                        }
+
+                        updatedMoveables.clear();
+                        addedBombs.clear();
+
                     }catch(Exception e){
                         e.printStackTrace();
+                        inputs.clear();
+                        outputs.clear();
+                        sockets.clear();
                     }
                 }
             }
         }
 
         public void handleData(int[] data){
+            System.out.println("Handling data");
+            if(data.length == 0){
+                System.out.println("Data contains nothing");
+                return;
+            }
             for (int i = 0; i < data.length; i++) {
-
-                if(data[i] == START_CLIENT_UPDATE_MOVEABLE){
+                if(data[i] == START_UPDATE_MOVEABLE){
+                    System.out.println("Got update moveable");
                     for (int j = i; j < data.length; j++) {
-                        if(data[j] == END_CLIENT_UPDATE_MOVEABLE){
+                        if(data[j] == END_UPDATE_MOVEABLE){
                             int length = j - i;
-                            if(length != 2){
+                            if(length != 3){
                                 throw new RuntimeException("Invalid formatted data. Update moveable data not correct");
                             }else{
                                 updateMoveable(data[i], data[i+1]);
                             }
                         }
                     }
-                    throw new RuntimeException("Invalid formatted data. Couldn't find update moveable end tag");
-                }else if(data[i] == START_CLIENT_DROP_BOMB){
+                }else if(data[i] == START_DROP_BOMB){
+                    System.out.println("Got drop bomb");
                     for (int j = i; j < data.length; j++) {
-                        if(data[j] == END_CLIENT_DROP_BOMB){
+                        System.out.println("Finding end");
+                        if(data[j] == END_DROP_BOMB){
+                            System.out.println("Found end");
                             int length = j - i;
-                            if(length != 4){
-                                throw new RuntimeException("Invalid formatted data. Update moveable data not correct");
+                            if(length != 5){
+                                throw new RuntimeException("Invalid formatted data. Drop bomb data not correct: " + length);
                             }else{
+                                System.out.println("Adding bomb");
                                 addBomb(data[i], data[i+1], data[i+2], data[i+3]);
                             }
                         }
                     }
-                    throw new RuntimeException("Invalid formatted data. Couldn't find update moveable end tag");
-
                 }
             }
         }
 
         public void addSocket(Socket socket){
             synchronized (this){
-                System.out.println("Hello");
                 newSockets.add(socket);
             }
         }

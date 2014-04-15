@@ -1,5 +1,8 @@
 package net;
 
+import base.Factory;
+import nodes.NetworkNode;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,64 +23,184 @@ public class Client extends base.System{
     private static int port = 13337;
     private static String ip = "127.0.0.1";
 
+    private HashMap<Integer, NetworkNode> nodes = new HashMap<>();
+    private HashMap<Integer, NetworkNode> temps = new HashMap<>();
+
     private HashMap<Integer, Integer> updatedMoveables = new HashMap<>();
-    private ArrayList<Integer[]> droppedBombs = new ArrayList<>();
+    private ArrayList<int[]> droppedBombs = new ArrayList<>();
 
     public Client() {
         try {
             socket = new Socket(ip, port);
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            output.write(1337);
-            output.flush();
         } catch (IOException e) {
             throw new RuntimeException("Unable to connect to server");
         }
     }
 
+    public void addUpdatedMoveable(int entity_id, int dir){
+        updatedMoveables.put(entity_id, dir);
+    }
+
+    public void addDroppedBomb(int[] data){
+        droppedBombs.add(data);
+    }
+
+    public void addToClient(int entity_id, NetworkNode node){
+        if(temps.containsKey(entity_id) || nodes.containsKey(entity_id))
+            return;
+        temps.put(entity_id, node);
+    }
+
+    private void acceptDroppedBomb(int x, int y, int damage, int depth){
+        Factory.getInstance().createBomb(x,y, damage, depth, 40);
+    }
+
+    private void acceptUpdatedMoveable(int entity, int dir){
+        if(!nodes.containsKey(entity)){
+            throw new RuntimeException("Entity did not exist");
+        }
+
+        if(!nodes.get(entity).isMoveable()){
+            throw new RuntimeException("Entity was not moveable when it should've been");
+        }
+
+        nodes.get(entity).moveable.move = true;
+        nodes.get(entity).moveable.curDir = dir;
+
+    }
+
     @Override
     public void update(float dt) {
-        try {
-            // Send info about next frame
-            //
-            ArrayList<Integer> out = new ArrayList<>();
-
-            for (Map.Entry<Integer, Integer> entry : updatedMoveables.entrySet()) {
-                out.add(START_CLIENT_UPDATE_MOVEABLE);
-                out.add(entry.getKey());
-                out.add(entry.getValue());
-                out.add(END_CLIENT_UPDATE_MOVEABLE);
-            }
-
-            for (Integer[] droppedBomb : droppedBombs) {
-                out.add(START_CLIENT_DROP_BOMB);
-
-                //Just assume it is rightly formatted. If not, the exception deserves to be thrown.
-                out.add(droppedBomb[0]);
-                out.add(droppedBomb[1]);
-                out.add(droppedBomb[2]);
-                out.add(droppedBomb[3]);
-
-                out.add(END_CLIENT_DROP_BOMB);
-            }
-
-            output.write(START_CLIENT_TRANSFER);
-            output.write(CONTENT_LENGTH);
-            output.write(out.size());
-
-            for (Integer integer : out) {
-                output.write(integer);
-            }
-
-            output.write(END_CLIENT_TRANSFER);
-            output.flush();
-        }catch(Exception e){
-            return;
+        for (Map.Entry<Integer, NetworkNode> nodeEntry : temps.entrySet()) {
+            nodes.put(nodeEntry.getKey(), nodeEntry.getValue());
         }
+
+        if(!updatedMoveables.isEmpty() && !droppedBombs.isEmpty()){
+            try {
+                // Send info about next frame
+                //
+                ArrayList<Integer> out = new ArrayList<>();
+
+                for (Map.Entry<Integer, Integer> entry : updatedMoveables.entrySet()) {
+                    out.add(START_UPDATE_MOVEABLE);
+                    out.add(entry.getKey());
+                    out.add(entry.getValue());
+                    out.add(END_UPDATE_MOVEABLE);
+                }
+
+                for (int[] droppedBomb : droppedBombs) {
+                    out.add(START_DROP_BOMB);
+
+                    //Just assume it is rightly formatted. If not, the exception deserves to be thrown.
+                    out.add(droppedBomb[0]);
+                    out.add(droppedBomb[1]);
+                    out.add(droppedBomb[2]);
+                    out.add(droppedBomb[3]);
+
+                    out.add(END_DROP_BOMB);
+                }
+
+                output.write(START_CLIENT_TRANSFER);
+                output.write(CONTENT_LENGTH);
+                output.write(out.size());
+
+                for (Integer integer : out) {
+                    output.write(integer);
+                }
+
+                output.write(END_CLIENT_TRANSFER);
+                output.flush();
+            }catch(Exception e){
+                return;
+            }
+        }
+
 
         // Wait for information
         //
+        try {
+            System.out.println(input.ready());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            if(!input.ready()){
+                return;
+            }
+        } catch (IOException e) {
+            return;
+        }
+        try {
+            int content;
+            int lastFlag = 0;
+            int contentLength = 0;
+            int[] data;
+            while((content = input.read()) != -1){
 
+                if(content == START_SERVER_TRANSFER){
+                    lastFlag = START_SERVER_TRANSFER;
+                    System.out.println("Transfer started");
+                }else if(lastFlag == CONTENT_LENGTH){
+                    System.out.println("Got content length");
+                    contentLength = content;
+
+                    data = new int[contentLength];
+                    for (int i = 0; i < contentLength; i++) {
+                        data[i] = input.read();
+                    }
+
+                    handleData(data);
+                    continue;
+                }else if(content == END_SERVER_TRANSFER){
+                    break;
+                }
+
+                lastFlag = content;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Something went wrong while reading from stream");
+        }
+        System.out.println("Message-transferring completed");
+    }
+
+    public void handleData(int[] data){
+        System.out.println("Handling data");
+        if(data.length == 0){
+            System.out.println("Data contains nothing");
+            return;
+        }
+        for (int i = 0; i < data.length; i++) {
+            if(data[i] == START_UPDATE_MOVEABLE){
+                System.out.println("Got update moveable");
+                for (int j = i; j < data.length; j++) {
+                    if(data[j] == END_UPDATE_MOVEABLE){
+                        int length = j - i;
+                        if(length != 3){
+                            throw new RuntimeException("Invalid formatted data. Update moveable data not correct");
+                        }else{
+                            acceptUpdatedMoveable(data[i], data[i + 1]);
+                        }
+                    }
+                }
+            }else if(data[i] == START_DROP_BOMB){
+                System.out.println("Got drop bomb");
+                for (int j = i; j < data.length; j++) {
+                    System.out.println("Finding end");
+                    if(data[j] == END_DROP_BOMB){
+                        System.out.println("Found end");
+                        int length = j - i;
+                        if(length != 5){
+                            throw new RuntimeException("Invalid formatted data. Drop bomb data not correct: " + length);
+                        }else{
+                            System.out.println("Adding bomb");
+                            acceptDroppedBomb(data[i], data[i + 1], data[i + 2], data[i + 3]);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -87,6 +210,8 @@ public class Client extends base.System{
 
     public static void main(String[] args) {
         Client client = new Client();
+        client.addDroppedBomb(new int[]{1,2,3,4});
+        client.update(0);
 
     }
 }

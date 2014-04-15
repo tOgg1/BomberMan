@@ -38,60 +38,116 @@ public class InputSystem extends base.System implements KeyListener {
     @Override
     public void update(float dt) {
 
-        // A bomb shalt be layeth upon thou
-        if(keyMap[KeyEvent.VK_SPACE]) {
-            Engine engine = Engine.getInstance();
-            for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
+        if(forwardEvents){
+            if(keyMap[KeyEvent.VK_SPACE]) {
+                Engine engine = Engine.getInstance();
+                for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
 
-                InputNode node = entry.getValue();
+                    InputNode node = entry.getValue();
 
-                if (node.isBombLayer()) {
-                    if(node.bombLayer.curCount == 0) {
-                        continue;
+                    if (node.isBombLayer()) {
+                        if(node.bombLayer.curCount == 0) {
+                            continue;
+                        }
+
+                        PowerupPlayer powerup = new PowerupPlayer();
+                        powerup.addsFeature = PowerupPlayer.Feature.BOMB_TEMP_COUNT;
+                        powerup.amount = -1;
+                        engine.factory.addPowerupToEntity(entry.getKey(), powerup, PowerupNode.PowerupDuration.TEMPORARY, 40);
+
+
+                        forwardTo.addDroppedBomb(new int[]{node.cellPosition.x, node.cellPosition.y, node.bombLayer.damage, node.bombLayer.depth});
+                        // Set handled
+                        keyMap[KeyEvent.VK_SPACE] = false;
                     }
-
-                    engine.factory.createBomb(node.cellPosition.x, node.cellPosition.y,
-                                              node.bombLayer.damage, node.bombLayer.depth, 40);
-                    PowerupPlayer powerup = new PowerupPlayer();
-                    powerup.addsFeature = PowerupPlayer.Feature.BOMB_TEMP_COUNT;
-                    powerup.amount = -1;
-                    engine.factory.addPowerupToEntity(entry.getKey(), powerup, PowerupNode.PowerupDuration.TEMPORARY, 40);
-
-                    // Set handled
-                    keyMap[KeyEvent.VK_SPACE] = false;
                 }
+            }
+
+            int moveFlag = 0;
+
+            if(keyMap[KeyEvent.VK_LEFT]) {
+                moveFlag |= LEFT;
+            }
+
+            if(keyMap[KeyEvent.VK_RIGHT]) {
+                moveFlag |= RIGHT;
+            }
+
+            if(keyMap[KeyEvent.VK_UP]) {
+                moveFlag |= UP;
+            }
+
+            if(keyMap[KeyEvent.VK_DOWN]) {
+                moveFlag |= DOWN;
+            }
+
+            if(keyMap[KeyEvent.VK_ESCAPE]) {
+                System.exit(0);
+            }
+
+            if(moveFlag == 0)
+                return;
+
+            for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
+                forwardTo.addUpdatedMoveable(entry.getKey(), moveFlag);
+            }
+        }else{
+            // A bomb shalt be layeth upon thou
+            if(keyMap[KeyEvent.VK_SPACE]) {
+                Engine engine = Engine.getInstance();
+                for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
+
+                    InputNode node = entry.getValue();
+
+                    if (node.isBombLayer()) {
+                        if(node.bombLayer.curCount == 0) {
+                            continue;
+                        }
+
+                        engine.factory.createBomb(node.cellPosition.x, node.cellPosition.y,
+                                node.bombLayer.damage, node.bombLayer.depth, 40);
+                        PowerupPlayer powerup = new PowerupPlayer();
+                        powerup.addsFeature = PowerupPlayer.Feature.BOMB_TEMP_COUNT;
+                        powerup.amount = -1;
+                        engine.factory.addPowerupToEntity(entry.getKey(), powerup, PowerupNode.PowerupDuration.TEMPORARY, 40);
+
+                        // Set handled
+                        keyMap[KeyEvent.VK_SPACE] = false;
+                    }
+                }
+            }
+
+            int moveFlag = 0;
+
+            if(keyMap[KeyEvent.VK_LEFT]) {
+                moveFlag |= LEFT;
+            }
+
+            if(keyMap[KeyEvent.VK_RIGHT]) {
+                moveFlag |= RIGHT;
+            }
+
+            if(keyMap[KeyEvent.VK_UP]) {
+                moveFlag |= UP;
+            }
+
+            if(keyMap[KeyEvent.VK_DOWN]) {
+                moveFlag |= DOWN;
+            }
+
+            if(keyMap[KeyEvent.VK_ESCAPE]) {
+                System.exit(0);
+            }
+
+            if(moveFlag == 0)
+                return;
+
+            for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
+                entry.getValue().moveable.curDir = moveFlag;
+                entry.getValue().moveable.move = true;
             }
         }
 
-        int moveFlag = 0;
-
-        if(keyMap[KeyEvent.VK_LEFT]) {
-            moveFlag |= LEFT;
-        }
-
-        if(keyMap[KeyEvent.VK_RIGHT]) {
-            moveFlag |= RIGHT;
-        }
-
-        if(keyMap[KeyEvent.VK_UP]) {
-            moveFlag |= UP;
-        }
-
-        if(keyMap[KeyEvent.VK_DOWN]) {
-            moveFlag |= DOWN;
-        }
-
-        if(keyMap[KeyEvent.VK_ESCAPE]) {
-            System.exit(0);
-        }
-
-        if(moveFlag == 0)
-            return;
-
-        for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
-            entry.getValue().moveable.curDir = moveFlag;
-            entry.getValue().moveable.move = true;
-        }
     }
 
     @Override

@@ -109,6 +109,7 @@ public class MovementSystem extends base.System {
         }
     }
 
+
     public boolean canMoveTo(MovementNode node, int screenX, int screenY){
         int cellX = screenX/tileSizeX;
         int cellY = screenY/tileSizeY;
@@ -177,6 +178,8 @@ public class MovementSystem extends base.System {
                 node.pos.y = tele.toY;
                 node.screenPos.x = node.pos.x*tileSizeX + node.size.x/2;
                 node.screenPos.y = node.pos.y*tileSizeY + node.size.y/2;
+                System.out.println(tele.toX);
+                System.out.println(tele.toY);
             }
 
             if(_node.isPowerup()){

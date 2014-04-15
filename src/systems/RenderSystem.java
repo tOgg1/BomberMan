@@ -87,10 +87,11 @@ public class RenderSystem extends base.System{
             }
         };
 
+        gamePanel.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
+
         frame = new JFrame();
         frame.add(gamePanel);
         frame.pack();
-        frame.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setFocusable(true);
         frame.requestFocus();

@@ -28,6 +28,9 @@ public class Main {
         SchedulerSystem schedulerSystem = new SchedulerSystem(engine);
         Client client = new Client();
 
+        inputSystem.forwardEvents = true;
+        inputSystem.forwardTo = client;
+
         renderSystem.addKeyListener(inputSystem);
 
         Factory factory = Factory.getInstance();
@@ -40,6 +43,7 @@ public class Main {
         factory.combatSystem = combatSystem;
         factory.inputSystem = inputSystem;
         factory.movementSystem = movementSystem;
+        factory.client = client;
 
         MapCreator creator = new MapCreator(factory);
         creator.buildMap("res/maps/cross.txt");
