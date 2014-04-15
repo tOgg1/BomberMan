@@ -81,6 +81,17 @@ public class RenderSystem extends base.System{
                             --animatable.nextSequntialAnimation;
                             g.drawImage(resources.get(animatable.resources[animatable.status]), pos.x - size.x/2,
                                     pos.y - size.y/2, size.x, size.y, null);
+
+                            if(node.isDestroyable()){
+                                g.setColor(Color.white);
+                                String hp = "Hitpoints: " + node.destroyable.hitPoints;
+                                g.drawChars(hp.toCharArray(), 0, hp.length(), 10, 10);
+                            }
+
+                            if(node.isScore()){
+                                g.setColor(Color.white);
+                                g.drawString("Score: " + node.score.kills + "kills", 0, 25);
+                            }
                         }
                     }
                 }

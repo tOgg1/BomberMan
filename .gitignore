@@ -1,6 +1,7 @@
 out/
-res/
-
+.idea
+*.xcf
+*.svg
 *.class
 *.jar
 *.iml

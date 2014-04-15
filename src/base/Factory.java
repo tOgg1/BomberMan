@@ -78,6 +78,7 @@ public class Factory {
 
         RenderNode renderNode = new RenderNode(size, screenPosition);
         renderNode.animatable = animatable;
+        renderNode.destroyable = destroyable;
 
         CombatNode combatNode = new CombatNode(cellPosition);
         combatNode.animatable = animatable;

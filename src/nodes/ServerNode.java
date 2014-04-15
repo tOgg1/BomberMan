@@ -1,5 +1,6 @@
 package nodes;
 
+import components.Defeatable;
 import components.Destroyable;
 import components.Score;
 
@@ -8,5 +9,7 @@ import components.Score;
  */
 public class ServerNode {
     public Destroyable destroyable;
+    public Defeatable defeatable;
     public Score score;
+
 }
