@@ -28,8 +28,8 @@ public class Main {
         SchedulerSystem schedulerSystem = new SchedulerSystem(engine);
         Client client = new Client();
 
-        inputSystem.forwardEvents = true;
-        inputSystem.forwardTo = client;
+        engine.usesMultiplayer = true;
+        engine.forwardTo = client;
 
         renderSystem.addKeyListener(inputSystem);
 
@@ -46,7 +46,7 @@ public class Main {
         factory.client = client;
 
         MapCreator creator = new MapCreator(factory);
-        creator.buildMap("res/maps/cross.txt");
+        creator.buildMap("res/maps/default.txt");
 
         engine.addSystem(movementSystem, LOGIC);
         engine.addSystem(combatSystem, LOGIC);
@@ -58,5 +58,13 @@ public class Main {
         engine.addSystem(client, PRERENDER);
 
         engine.run();
+    }
+
+    public void initMultiplayer(){
+
+    }
+
+    public void initSinglepalyer(){
+        
     }
 }

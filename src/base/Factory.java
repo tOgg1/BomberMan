@@ -97,6 +97,60 @@ public class Factory {
         return player_id;
     }
 
+    public int createOtherPlayer(int cellX, int cellY){
+        int player_id = Entity.createNewEntity();
+
+        Animatable animatable = new Animatable();
+        Moveable moveable = new Moveable();
+        Score score = new Score();
+        CellPosition cellPosition = new CellPosition();
+        ScreenPosition screenPosition = new ScreenPosition();
+        BombLayer bombLayer = new BombLayer();
+        Size size = new Size();
+        Destroyable destroyable = new Destroyable();
+
+        animatable.resources = renderSystem.getUnitPurpleResources();
+        animatable.count = animatable.resources.length;
+        animatable.type = Animatable.ANIMATE_DIRECTIONAL | Animatable.ANIMATE_SEQUENTIAL;
+        animatable.sequentialCount = 2;
+        animatable.nextSequntialAnimation = 3;
+        animatable.sequentialAnimateInterval = 3;
+
+        createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
+        createDefaultSize(size);
+
+        bombLayer.damage = 1;
+        bombLayer.depth = 1;
+        bombLayer.maxCount = 1;
+        bombLayer.curCount = 1;
+
+        destroyable.hitPoints = 3;
+
+        MovementNode moveNode = new MovementNode(cellPosition, screenPosition);
+        moveNode.moveable = moveable;
+        moveNode.size = size;
+        moveNode.animatable = animatable;
+
+        RenderNode renderNode = new RenderNode(size, screenPosition);
+        renderNode.animatable = animatable;
+        renderNode.destroyable = destroyable;
+
+        CombatNode combatNode = new CombatNode(cellPosition);
+        combatNode.animatable = animatable;
+        combatNode.bombLayer = bombLayer;
+        combatNode.destroyable = destroyable;
+
+        NetworkNode networkNode = new NetworkNode(cellPosition);
+        networkNode.bombLayer = bombLayer;
+        networkNode.moveable = moveable;
+
+        addToCombatSystem(player_id, combatNode);
+        addToRenderSystem(player_id, renderNode);
+        addToMovementSystem(player_id, moveNode);
+        addToClient(player_id, networkNode);
+        return player_id;
+    }
+
     public int createCrate(int cellX, int cellY){
         int crate_id = Entity.createNewEntity();
         Renderable renderable = new Renderable();

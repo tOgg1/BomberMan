@@ -34,6 +34,7 @@ public class Client extends base.System{
             socket = new Socket(ip, port);
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.write(INITIAL_CONNECT);
         } catch (IOException e) {
             throw new RuntimeException("Unable to connect to server");
         }
@@ -121,8 +122,6 @@ public class Client extends base.System{
 
         clearAllUpdated();
 
-        // Wait for at most 1 ms information
-        //
         try {
             if(!input.ready()){
                 return;
@@ -148,7 +147,7 @@ public class Client extends base.System{
                         data[i] = input.read();
                     }
                     lastFlag = 0;
-                    handleData(data);
+                    handleGameData(data);
                     continue;
                 }else if(content == END_SERVER_TRANSFER){
                     break;
@@ -166,7 +165,11 @@ public class Client extends base.System{
         droppedBombs.clear();
     }
 
-    public void handleData(int[] data){
+    public void handlePreGameData(int[] data){
+
+    }
+
+    public void handleGameData(int[] data){
         if(data.length == 0){
             return;
         }

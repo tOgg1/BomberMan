@@ -116,8 +116,8 @@ public class MovementSystem extends base.System {
 
         // Check if outside screen
         // +5 to add a minor margin
-        if(screenX - node.size.x/2 + 5 < 0 || screenX + node.size.x/2 - 5> tileSizeX*sizex || screenY - node.size.y/2 +5
-                < 0 || screenY + node.size.y - 5 > tileSizeY*sizey){
+        if(screenX - node.size.x/2 + 5 < 0 || screenX + node.size.x/2 - 5 > tileSizeX*sizex || screenY - node.size.y/2 + 5
+                < 0 || screenY + node.size.y/2 - 5 > tileSizeY*sizey){
             return false;
         }
 
@@ -178,8 +178,6 @@ public class MovementSystem extends base.System {
                 node.pos.y = tele.toY;
                 node.screenPos.x = node.pos.x*tileSizeX + node.size.x/2;
                 node.screenPos.y = node.pos.y*tileSizeY + node.size.y/2;
-                System.out.println(tele.toX);
-                System.out.println(tele.toY);
             }
 
             if(_node.isPowerup()){

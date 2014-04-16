@@ -2,7 +2,6 @@ package systems;
 
 import base.Engine;
 import components.PowerupPlayer;
-import net.Client;
 import nodes.InputNode;
 import nodes.PowerupNode;
 
@@ -22,8 +21,6 @@ public class InputSystem extends base.System implements KeyListener {
 
     private boolean[] keyMap = new boolean[0xFFF];
 
-    public boolean forwardEvents = false;
-    public Client forwardTo;
 
     @Override
     public void removeEntity(int id) {
@@ -38,7 +35,7 @@ public class InputSystem extends base.System implements KeyListener {
     @Override
     public void update(float dt) {
 
-        if(forwardEvents){
+        if(Engine.getInstance().usesMultiplayer){
             if(keyMap[KeyEvent.VK_SPACE]) {
                 Engine engine = Engine.getInstance();
                 for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
@@ -55,7 +52,7 @@ public class InputSystem extends base.System implements KeyListener {
                         powerup.amount = -1;
                         engine.factory.addPowerupToEntity(entry.getKey(), powerup, PowerupNode.PowerupDuration.TEMPORARY, 40);
 
-                        forwardTo.addDroppedBomb(new int[]{node.cellPosition.x, node.cellPosition.y, node.bombLayer.damage, node.bombLayer.depth});
+                        Engine.getInstance().forwardTo.addDroppedBomb(new int[]{node.cellPosition.x, node.cellPosition.y, node.bombLayer.damage, node.bombLayer.depth});
                         // Set handled
                         keyMap[KeyEvent.VK_SPACE] = false;
                     }
@@ -88,7 +85,7 @@ public class InputSystem extends base.System implements KeyListener {
                 return;
 
             for (Map.Entry<Integer, InputNode> entry : inputtables.entrySet()) {
-                forwardTo.addUpdatedMoveable(entry.getKey(), moveFlag);
+                Engine.getInstance().forwardTo.addUpdatedMoveable(entry.getKey(), moveFlag);
             }
         }else{
             // A bomb shalt be layeth upon thou

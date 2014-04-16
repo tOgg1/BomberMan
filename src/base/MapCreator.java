@@ -13,7 +13,7 @@ public class MapCreator {
 
     public static String config = "res/maps/config.txt";
 
-    private final Factory factory;
+    private Factory factory;
 
     public final static int MAP_NONE = 0;
     public final static int MAP_PLAYER = 1;
@@ -26,7 +26,13 @@ public class MapCreator {
         this.factory = factory;
     }
 
+    public MapCreator() {
+    }
+
     public boolean buildMap(String path){
+        if(!hasFactory())
+            return false;
+
         try{
             int[][] map = parseMap(path);
             for (int i = 0; i < map.length; i++) {
@@ -63,6 +69,39 @@ public class MapCreator {
         return true;
     }
 
+    public boolean buildMap(int[][] map){
+        if(!hasFactory())
+            return false;
+
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
+                switch(map[i][j]){
+                    default:
+                    case MAP_NONE:
+                        continue;
+                    case MAP_PLAYER:
+                        factory.createPlayer(j, i);
+                        continue;
+                    case MAP_AI:
+                        factory.createBot(j, i);
+                        continue;
+                    case MAP_CRATE:
+                        factory.createCrate(j, i);
+                        continue;
+                    case MAP_TELEPORT:
+                        int[] to = new int[2];
+                        placeRandomTeleportLocation(map, to);
+                        factory.createTeleporter(j, i, to[1], to[0]);
+                        continue;
+                    case MAP_METAL:
+                        factory.createMetal(j, i);
+                        continue;
+                }
+            }
+        }
+        return true;
+    }
+
     private boolean placeRandomTeleportLocation(int[][] map, int[] randomlocation) {
         if(map == null)
             throw new IllegalArgumentException("Invalid argument: map is null");
@@ -74,10 +113,15 @@ public class MapCreator {
 
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
-                if(map[i][j] != 0){
+                if(map[i][j] == 0){
                     availableLocations.add(new int[]{i,j});
                 }
             }
+        }
+
+        if(availableLocations.size() == 0){
+            java.lang.System.out.println("Warning: You have a teleporter in a map with no spaces");
+            return false;
         }
 
         Random random = new Random();
@@ -89,6 +133,10 @@ public class MapCreator {
         randomlocation[0] = chosen[0];
         randomlocation[1] = chosen[1];
         return true;
+    }
+
+    public boolean hasFactory(){
+        return factory != null;
     }
 
     public int[][] parseMap(String path){

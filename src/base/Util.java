@@ -1,9 +1,27 @@
 package base;
 
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /**
  * Created by tormod on 12.04.14.
  */
 public class Util {
+
+    public static Font mankSans;
+
+    static{
+        try {
+            mankSans = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("res/MankSans.ttf"));
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(mankSans);
+        } catch (FontFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static class Rect2{
 
@@ -37,4 +55,5 @@ public class Util {
                     '}';
         }
     }
+
 }

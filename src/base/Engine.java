@@ -1,5 +1,7 @@
 package base;
 
+import net.Client;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,6 +21,9 @@ public class Engine implements Runnable {
 
     private static Engine singleton;
     private ArrayList<Integer> toDelete = new ArrayList<>();
+
+    public boolean usesMultiplayer;
+    public Client forwardTo;
 
     private Engine() {
         factory = Factory.getInstance();

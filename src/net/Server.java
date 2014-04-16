@@ -1,5 +1,6 @@
 package net;
 
+import base.MapCreator;
 import components.Defeatable;
 import components.Destroyable;
 
@@ -23,11 +24,12 @@ public class Server {
 
     private HashMap<Integer, Integer> updatedMoveables = new HashMap<>();
     private ArrayList<int[]> addedBombs = new ArrayList<>();
-    private ArrayList<Destroyable> destroyables = new ArrayList<>();
-    private ArrayList<Defeatable> defeatables = new ArrayList<>();
+    private HashMap<Integer, Destroyable> destroyables = new HashMap<>();
+    private HashMap<Integer, Defeatable> defeatables = new HashMap<>();
+
+    private MapCreator mapCreator = new MapCreator();
 
     public Server() {
-
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {

@@ -21,11 +21,11 @@ public class RenderNode {
         this.pos = pos;
     }
 
-    public boolean isRenderable() {return renderable != null; }
+    public boolean isRenderable() { return renderable != null;}
 
-    public boolean isAnimatable() {return animatable != null; }
+    public boolean isAnimatable() { return animatable != null; }
 
-    public boolean isDestroyable() {return destroyable != null; }
+    public boolean isDestroyable() { return destroyable != null; }
 
-    public boolean isScore() {return score != null;}
+    public boolean isScore() { return score != null;}
 }

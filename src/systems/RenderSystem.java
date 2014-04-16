@@ -1,5 +1,6 @@
 package systems;
 
+import base.Util;
 import components.Animatable;
 import components.Renderable;
 import components.ScreenPosition;
@@ -27,17 +28,25 @@ public class RenderSystem extends base.System{
     private Map<Integer, RenderNode> temps = new HashMap<>();
 
     private JFrame frame;
-    private JPanel gamePanel;
+    private GamePanel gamePanel;
+    private MenuPanel menuPanel;
+    private InfoPanel infoPanel;
+    private LoadingPanel loadingPanel;
 
-    public static int SCREEN_WIDTH = 768, SCREEN_HEIGHT = 768;
+    private ParentPanel parentPanel;
+
+    public static int GAME_WIDTH = 768, GAME_HEIGHT = 768;
+    public static int INFO_WIDTH = 768, INFO_HEIGHT = 50;
 
     private final int sizex, sizey;
 
-    private int unitRedResource;
-    private int unitBlueResource;
+    private int backgroundResource;
+    private int loadingResource;
+
+    private int unitRedResources[];
+    private int unitBlueResources[];
     private int unitPurpleResources[];
-    private int unitYellowResource;
-    private int unitPinkResource;
+    private int unitGreenResources[];
 
     private int bombResource;
     private int crateResource;
@@ -52,57 +61,42 @@ public class RenderSystem extends base.System{
     private int powerupSpeedResource;
     private int powerupDamageResource;
 
+    private boolean isInMenu;
+    private boolean isInLoading;
+    private boolean isRunning;
+
     public RenderSystem(int sizex, int sizey) {
 
         this.sizex = sizex;
         this.sizey = sizey;
 
-        gamePanel = new JPanel(){
-            @Override
-            public void paint(Graphics g) {
-                g.setColor(Color.DARK_GRAY);
-                g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-                synchronized (nodes){
-                    for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
-                        RenderNode node = entry.getValue();
-                        Renderable renderable = node.renderable;
-                        Animatable animatable = node.animatable;
-                        ScreenPosition pos = node.pos;
-                        Size size = node.size;
+        isInLoading = false;
+        isInMenu = false;
+        isRunning = false;
 
-                        if(pos == null) {
-                            throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
-                        }
+        gamePanel = new GamePanel();
+        gamePanel.setPreferredSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
+        gamePanel.setBounds(0, INFO_HEIGHT, GAME_WIDTH, GAME_HEIGHT);
 
-                        if(node.isRenderable()){
-                            g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
-                                    pos.y - size.y/2, size.x, size.y, null);
-                        } else if(node.isAnimatable()){
-                            --animatable.nextSequntialAnimation;
-                            g.drawImage(resources.get(animatable.resources[animatable.status]), pos.x - size.x/2,
-                                    pos.y - size.y/2, size.x, size.y, null);
+        infoPanel = new InfoPanel();
+        infoPanel.setPreferredSize(new Dimension());
 
-                            if(node.isDestroyable()){
-                                g.setColor(Color.white);
-                                String hp = "Hitpoints: " + node.destroyable.hitPoints;
-                                g.drawChars(hp.toCharArray(), 0, hp.length(), 10, 10);
-                            }
+        menuPanel = new MenuPanel();
 
-                            if(node.isScore()){
-                                g.setColor(Color.white);
-                                g.drawString("Score: " + node.score.kills + "kills", 0, 25);
-                            }
-                        }
-                    }
-                }
+        loadingPanel = new LoadingPanel();
 
-            }
-        };
-
-        gamePanel.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
+        parentPanel = new ParentPanel(gamePanel, infoPanel, menuPanel, loadingPanel);
 
         frame = new JFrame();
-        frame.add(gamePanel);
+        frame.setLayout(null);
+
+        gamePanel.setFont(Util.mankSans);
+        frame.setFont(Util.mankSans);
+        menuPanel.setFont(Util.mankSans);
+        infoPanel.setFont(Util.mankSans);
+        parentPanel.setFont(Util.mankSans);
+
+        frame.add(parentPanel);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setFocusable(true);
@@ -111,20 +105,43 @@ public class RenderSystem extends base.System{
         frame.setResizable(false);
 
         /* Load assets */
+        loadBackgrounds();
         loadUnitResources();
         loadObjects();
         loadPowerups();
-
     }
 
-    public void loadPowerups(){
+    public void setInMenu(){
+        isInMenu = true;
+        isInLoading = false;
+        isRunning = false;
+    }
+
+    public void setInLoading(){
+        isInMenu = false;
+        isInLoading = true;
+        isRunning = false;
+    }
+
+    public void setInGame(){
+        isInMenu = false;
+        isInLoading = false;
+        isRunning = true;
+    }
+
+    private void loadBackgrounds(){
+        backgroundResource = loadResource("res/backgrounds/background.png");
+        loadingResource = loadResource("res/backgrounds/loadingscreen.png");
+    }
+
+    private void loadPowerups(){
         powerupBombResource = loadResource("res/powerup/powerup_bomb.png");
         powerupFireResource = loadResource("res/powerup/powerup_fire.png");
         powerupSpeedResource = loadResource("res/powerup/powerup_speed.png");
         powerupDamageResource = loadResource("res/powerup/powerup_damage.png");
     }
 
-    public void loadObjects(){
+    private void loadObjects(){
         bombResource = loadResource("res/object/bomb.png");
         crateResource = loadResource("res/object/crate.png");
         crateDamagedOneResource = loadResource("res/object/crate_damaged_1.png");
@@ -134,11 +151,7 @@ public class RenderSystem extends base.System{
         explosionResource = loadResource("res/object/explosion.png");
     }
 
-    public void loadUnitResources(){
-        unitRedResource = loadResource("res/unit/unit_red.png");
-        unitBlueResource = loadResource("res/unit/unit_blue.png");
-        unitYellowResource = loadResource("res/unit/unit_yellow.png");
-        unitPinkResource = loadResource("res/unit/unit_pink.png");
+    private void loadUnitResources(){
 
         unitPurpleResources = new int[8];
         unitPurpleResources[0] = loadResource("res/unit/unit_purple_up_1.png");
@@ -149,6 +162,36 @@ public class RenderSystem extends base.System{
         unitPurpleResources[5] = loadResource("res/unit/unit_purple_right_2.png");
         unitPurpleResources[6] = loadResource("res/unit/unit_purple_left_1.png");
         unitPurpleResources[7] = loadResource("res/unit/unit_purple_left_2.png");
+
+        unitRedResources = new int[8];
+        unitRedResources[0] = loadResource("res/unit/unit_red_up_1.png");
+        unitRedResources[1] = loadResource("res/unit/unit_red_up_2.png");
+        unitRedResources[2] = loadResource("res/unit/unit_red_down_1.png");
+        unitRedResources[3] = loadResource("res/unit/unit_red_down_2.png");
+        unitRedResources[4] = loadResource("res/unit/unit_red_right_1.png");
+        unitRedResources[5] = loadResource("res/unit/unit_red_right_2.png");
+        unitRedResources[6] = loadResource("res/unit/unit_red_left_1.png");
+        unitRedResources[7] = loadResource("res/unit/unit_red_left_2.png");
+
+        unitGreenResources = new int[8];
+        unitGreenResources[0] = loadResource("res/unit/unit_green_up_1.png");
+        unitGreenResources[1] = loadResource("res/unit/unit_green_up_2.png");
+        unitGreenResources[2] = loadResource("res/unit/unit_green_down_1.png");
+        unitGreenResources[3] = loadResource("res/unit/unit_green_down_2.png");
+        unitGreenResources[4] = loadResource("res/unit/unit_green_right_1.png");
+        unitGreenResources[5] = loadResource("res/unit/unit_green_right_2.png");
+        unitGreenResources[6] = loadResource("res/unit/unit_green_left_1.png");
+        unitGreenResources[7] = loadResource("res/unit/unit_green_left_2.png");
+
+        unitBlueResources = new int[8];
+        unitBlueResources[0] = loadResource("res/unit/unit_blue_up_1.png");
+        unitBlueResources[1] = loadResource("res/unit/unit_blue_up_2.png");
+        unitBlueResources[2] = loadResource("res/unit/unit_blue_down_1.png");
+        unitBlueResources[3] = loadResource("res/unit/unit_blue_down_2.png");
+        unitBlueResources[4] = loadResource("res/unit/unit_blue_right_1.png");
+        unitBlueResources[5] = loadResource("res/unit/unit_blue_right_2.png");
+        unitBlueResources[6] = loadResource("res/unit/unit_blue_left_1.png");
+        unitBlueResources[7] = loadResource("res/unit/unit_blue_left_2.png");
     }
 
     /* Render */
@@ -163,7 +206,7 @@ public class RenderSystem extends base.System{
 
         temps.clear();
 
-        gamePanel.repaint();
+        parentPanel.repaint();
     }
 
     public void addToRender(int entity_id, RenderNode node){
@@ -186,6 +229,100 @@ public class RenderSystem extends base.System{
         }
     }
 
+    private class ParentPanel extends JPanel {
+
+        private final GamePanel gamePanel;
+        private final InfoPanel infoPanel;
+        private final MenuPanel menuPanel;
+        private final LoadingPanel loadingPanel;
+
+        private ParentPanel(GamePanel gamePanel, InfoPanel infoPanel, MenuPanel menuPanel, LoadingPanel loadingPanel) {
+            this.gamePanel = gamePanel;
+            this.infoPanel = infoPanel;
+            this.menuPanel = menuPanel;
+            this.loadingPanel = loadingPanel;
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            if(isRunning){
+                gamePanel.repaint();
+            }else if(isInMenu){
+                menuPanel.repaint();
+            }else if(isInLoading){
+                loadingPanel.repaint();
+            }
+        }
+    }
+
+    protected class LoadingPanel extends JPanel{
+
+        protected LoadingPanel() {
+
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            g.drawImage(resources.get(loadingResource), 0, 0, GAME_WIDTH, GAME_HEIGHT, null);
+        }
+    }
+
+    private class MenuPanel extends JPanel {
+
+
+    }
+
+    private class InfoPanel extends JPanel {
+        @Override
+        public void paint(Graphics g) {
+            g.setColor(Color.DARK_GRAY);
+        }
+    }
+
+    private class GamePanel extends JPanel {
+        @Override
+        public void paint(Graphics g) {
+            g.setColor(Color.DARK_GRAY);
+            g.drawImage(resources.get(backgroundResource), 0, 0, GAME_WIDTH, GAME_HEIGHT, null);
+
+            synchronized (nodes){
+                for (Map.Entry<Integer, RenderNode> entry : nodes.entrySet()) {
+                    RenderNode node = entry.getValue();
+                    Renderable renderable = node.renderable;
+                    Animatable animatable = node.animatable;
+                    ScreenPosition pos = node.pos;
+                    Size size = node.size;
+
+                    if(pos == null) {
+                        throw new IllegalStateException("Entity registed in rendersystem has a renderable but no position");
+                    }
+
+                    if(node.isRenderable()){
+                        g.drawImage(resources.get(renderable.resourceId), pos.x - size.x/2,
+                                pos.y - size.y/2, size.x, size.y, null);
+                    } else if(node.isAnimatable()){
+                        --animatable.nextSequntialAnimation;
+                        g.drawImage(resources.get(animatable.resources[animatable.status]), pos.x - size.x/2,
+                                pos.y - size.y/2, size.x, size.y, null);
+
+                        if(node.isDestroyable()){
+                            g.setColor(Color.white);
+                            String hp = "Hitpoints: " + node.destroyable.hitPoints;
+                            g.drawChars(hp.toCharArray(), 0, hp.length(), 10, 10);
+                        }
+
+                        if(node.isScore()){
+                            g.setColor(Color.white);
+                            g.drawString("Score: " + node.score.kills + "kills", 0, 25);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+
     @Override
     public void removeEntity(int id) {
         nodes.remove(id);
@@ -195,24 +332,20 @@ public class RenderSystem extends base.System{
         return crateResource;
     }
 
-    public int getUnitRedResource() {
-        return unitRedResource;
-    }
-
-    public int getUnitBlueResource() {
-        return unitBlueResource;
-    }
-
     public int[] getUnitPurpleResources() {
         return unitPurpleResources;
     }
 
-    public int getUnitYellowResource() {
-        return unitYellowResource;
+    public int[] getUnitRedResources() {
+        return unitRedResources;
     }
 
-    public int getUnitPinkResource() {
-        return unitPinkResource;
+    public int[] getUnitBlueResources() {
+        return unitBlueResources;
+    }
+
+    public int[] getUnitGreenResources() {
+        return unitGreenResources;
     }
 
     public int getBombResource() {
@@ -256,7 +389,7 @@ public class RenderSystem extends base.System{
     }
 
     public int getUnitSize(){
-        return SCREEN_HEIGHT/sizex;
+        return GAME_HEIGHT /sizex;
     }
 
     public void addKeyListener(KeyListener listener){
