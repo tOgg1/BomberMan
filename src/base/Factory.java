@@ -282,7 +282,7 @@ public class Factory {
         int bot_id = Entity.createNewEntity();
         AI ai = new AI();
 
-        Renderable renderable = new Renderable();
+        Animatable animatable = new Animatable();
         Moveable moveable = new Moveable();
         Score score = new Score();
         CellPosition cellPosition = new CellPosition();
@@ -291,7 +291,7 @@ public class Factory {
         Size size = new Size();
         Destroyable destroyable = new Destroyable();
 
-        renderable.resourceId = renderSystem.getUnitRedResource();
+        animatable.resources = renderSystem.getUnitGreenResources();
 
         createDefaultScreenAndCellPosition(cellPosition, screenPosition, cellX, cellY);
         createDefaultSize(size);
@@ -308,10 +308,10 @@ public class Factory {
         moveNode.size = size;
 
         RenderNode renderNode = new RenderNode(size, screenPosition);
-        renderNode.renderable = renderable;
+        renderNode.animatable = animatable;
 
         CombatNode combatNode = new CombatNode(cellPosition);
-        combatNode.renderable = renderable;
+        combatNode.animatable = animatable;
         combatNode.bombLayer = bombLayer;
         combatNode.destroyable = destroyable;
 

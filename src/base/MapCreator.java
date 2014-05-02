@@ -62,7 +62,7 @@ public class MapCreator {
                 }
             }
 
-        }catch(RuntimeException e){
+        }catch(RuntimeException e) {
             e.printStackTrace();
             return false;
         }

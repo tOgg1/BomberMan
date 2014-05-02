@@ -1,6 +1,5 @@
 package systems;
 
-import base.Util;
 import components.Animatable;
 import components.Renderable;
 import components.ScreenPosition;
@@ -76,28 +75,12 @@ public class RenderSystem extends base.System{
 
         gamePanel = new GamePanel();
         gamePanel.setPreferredSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
-        gamePanel.setBounds(0, INFO_HEIGHT, GAME_WIDTH, GAME_HEIGHT);
-
-        infoPanel = new InfoPanel();
-        infoPanel.setPreferredSize(new Dimension());
-
-        menuPanel = new MenuPanel();
-
-        loadingPanel = new LoadingPanel();
-
-        parentPanel = new ParentPanel(gamePanel, infoPanel, menuPanel, loadingPanel);
 
         frame = new JFrame();
-        frame.setLayout(null);
 
-        gamePanel.setFont(Util.mankSans);
-        frame.setFont(Util.mankSans);
-        menuPanel.setFont(Util.mankSans);
-        infoPanel.setFont(Util.mankSans);
-        parentPanel.setFont(Util.mankSans);
-
-        frame.add(parentPanel);
+        frame.add(gamePanel);
         frame.pack();
+        frame.setPreferredSize(new Dimension(GAME_WIDTH+10, GAME_HEIGHT+10));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setFocusable(true);
         frame.requestFocus();
@@ -206,7 +189,7 @@ public class RenderSystem extends base.System{
 
         temps.clear();
 
-        parentPanel.repaint();
+        gamePanel.repaint();
     }
 
     public void addToRender(int entity_id, RenderNode node){

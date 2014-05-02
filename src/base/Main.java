@@ -13,13 +13,17 @@ import static base.Engine.Property.RENDER;
 public class Main {
 
     public static void main(String[] args){
+        initSingleplayer();
+    }
+
+    public static void initMultiplayer(){
         Engine engine = Engine.getInstance();
 
         int gridSize = 16;
 
         RenderSystem renderSystem = new RenderSystem(gridSize, gridSize);
         MovementSystem movementSystem = new MovementSystem(gridSize, gridSize,
-                       renderSystem.getUnitSize(), renderSystem.getUnitSize());
+                renderSystem.getUnitSize(), renderSystem.getUnitSize());
 
         CombatSystem combatSystem = new CombatSystem(engine);
         PowerupSystem powerupSystem = new PowerupSystem(movementSystem, combatSystem);
@@ -60,11 +64,47 @@ public class Main {
         engine.run();
     }
 
-    public void initMultiplayer(){
+    public static void initSingleplayer(){
+        Engine engine = Engine.getInstance();
 
-    }
+        int gridSize = 16;
 
-    public void initSinglepalyer(){
-        
+        RenderSystem renderSystem = new RenderSystem(gridSize, gridSize);
+        MovementSystem movementSystem = new MovementSystem(gridSize, gridSize,
+                renderSystem.getUnitSize(), renderSystem.getUnitSize());
+
+        CombatSystem combatSystem = new CombatSystem(engine);
+        PowerupSystem powerupSystem = new PowerupSystem(movementSystem, combatSystem);
+        InputSystem inputSystem = new InputSystem();
+        AISystem aiSystem = new AISystem();
+        SchedulerSystem schedulerSystem = new SchedulerSystem(engine);
+
+        renderSystem.addKeyListener(inputSystem);
+
+        engine.usesMultiplayer = false;
+
+        Factory factory = Factory.getInstance();
+        engine.factory = factory;
+
+        factory.schedulerSystem = schedulerSystem;
+        factory.powerupSystem = powerupSystem;
+        factory.renderSystem = renderSystem;
+        factory.aiSystem = aiSystem;
+        factory.combatSystem = combatSystem;
+        factory.inputSystem = inputSystem;
+        factory.movementSystem = movementSystem;
+
+        MapCreator creator = new MapCreator(factory);
+        creator.buildMap("res/maps/default.txt");
+
+        engine.addSystem(movementSystem, LOGIC);
+        engine.addSystem(combatSystem, LOGIC);
+        engine.addSystem(inputSystem, LOGIC);
+        engine.addSystem(aiSystem, LOGIC);
+        engine.addSystem(schedulerSystem, LOGIC);
+        engine.addSystem(powerupSystem, LOGIC);
+        engine.addSystem(renderSystem, RENDER);
+
+        engine.run();
     }
 }
